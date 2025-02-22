@@ -1,0 +1,1357 @@
+{
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "default": {},
+    "description": "The connector spec file tells ISC how the connector should interact between ISC and the custom connector. It is the glue between ISC and the connector, so understanding the different sections are key to understanding how to build a custom connectors.",
+    "required": [
+        "name",
+        "keyType",
+        "supportsStatefulCommands",
+        "commands",
+        "sourceConfig",
+        "accountSchema",
+        "entitlementSchemas",
+        "accountCreateTemplate"
+    ],
+    "properties": {
+        "name": {
+            "type": "string",
+            "default": "",
+            "description": "The name of the connector as it appears in ISC. Tags can be appended to this name.",
+            "examples": [
+                "airtable-v5"
+            ]
+        },
+        "keyType": {
+            "type": "string",
+            "default": "simple",
+            "description": "This determines which type of key your connector expects to receive and send back for each of the commands",
+            "enum": [
+                "simple",
+                "compound"
+            ],
+            "examples": [
+                "simple"
+            ]
+        },
+        "commands": {
+            "type": "array",
+            "default": [],
+            "description": "The list of commands the connector supports",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "std:account:list",
+                    "std:account:read",
+                    "std:entitlement:list",
+                    "std:entitlement:read",
+                    "std:test-connection",
+                    "std:account:update",
+                    "std:account:create",
+                    "std:account:delete",
+                    "std:account:disable",
+                    "std:account:enable",
+                    "std:account:unlock",
+                    "std:account:discover-schema"
+                ],
+                "examples": [
+                    "std:account:list",
+                    "std:account:read",
+                    "std:entitlement:list",
+                    "std:entitlement:read",
+                    "std:test-connection",
+                    "std:account:update",
+                    "std:account:create",
+                    "std:account:delete",
+                    "std:account:disable",
+                    "std:account:enable",
+                    "std:account:unlock"
+                ]
+            },
+            "examples": [
+                [
+                    "std:account:list",
+                    "std:account:read",
+                    "std:entitlement:list",
+                    "std:entitlement:read",
+                    "std:test-connection",
+                    "std:account:update",
+                    "std:account:create",
+                    "std:account:delete",
+                    "std:account:disable",
+                    "std:account:enable",
+                    "std:account:unlock"
+                ]
+            ]
+        },
+        "sourceConfigInitialValues": {
+            "type": "object",
+            "default": {},
+            "description": "Key value pair of source config item keys and the default value that should be associated with them.",
+            "additionalProperties": {
+                "type": [
+                    "string",
+                    "number",
+                    "boolean"
+                ]
+            },
+            "examples": [
+                {
+                    "airtableURL": "https://api.airtable.com/v0"
+                }
+            ]
+        },
+        "sourceConfig": {
+            "type": "array",
+            "default": [],
+            "description": "A list of configuration items you must provide when you create a source in ISC. The order of these items is preserved in the UI.",
+            "items": {
+                "type": "object",
+                "default": {},
+                "description": "",
+                "required": [
+                    "type",
+                    "label",
+                    "items"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "const": "menu",
+                        "description": "It indicates a new menu for the sidebar. You can have multiple sections defined for complex connector configurations"
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "This label indicates the text that will show up on the sidebar in ISC",
+                        "examples": [
+                            "Configuration"
+                        ]
+                    },
+                    "items": {
+                        "type": "array",
+                        "default": [],
+                        "description": "",
+                        "items": {
+                            "type": "object",
+                            "default": {},
+                            "description": "",
+                            "required": [
+                                "type",
+                                "sectionTitle",
+                                "sectionHelpMessage",
+                                "items"
+                            ],
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "section",
+                                    "description": "It indicates a new section on the page"
+                                },
+                                "sectionTitle": {
+                                    "type": "string",
+                                    "description": "The large text title that will display for the section.",
+                                    "examples": [
+                                        "Authentication"
+                                    ]
+                                },
+                                "sectionHelpMessage": {
+                                    "type": "string",
+                                    "description": "A description about the section that can help the user understand what it is used for and how to fill out the fields",
+                                    "examples": [
+                                        "Provide the parameters to connect with the airtable worksheet."
+                                    ]
+                                },
+                                "docLinkLabel": {
+                                    "type": "string",
+                                    "description": "An optional field that is the text that displays next to documentation help link."
+                                },
+                                "docLink": {
+                                    "type": "string",
+                                    "description": "The optional link that the docLinkLabel will direct to if clicked."
+                                },
+                                "items": {
+                                    "type": "array",
+                                    "default": [],
+                                    "description": "The array of input fields for the menu item",
+                                    "items": {
+                                        "type": "object",
+                                        "description": "",
+                                        "required": [
+                                            "key",
+                                            "label",
+                                            "type"
+                                        ],
+                                        "properties": {
+                                            "key": {
+                                                "type": "string",
+                                                "description": "The name of the configuration item as it is referenced in code.",
+                                                "examples": [
+                                                    "apiKey"
+                                                ]
+                                            },
+                                            "label": {
+                                                "type": "string",
+                                                "description": "The name of the configuration item as it appears in the UI.",
+                                                "examples": [
+                                                    "API Key"
+                                                ]
+                                            },
+                                            "required": {
+                                                "type": "boolean",
+                                                "description": "You must populate required configuration items in the ISC source configuration wizard before continuing.",
+                                                "examples": [
+                                                    true
+                                                ]
+                                            },
+                                            "helpKey": {
+                                                "type": "string",
+                                                "examples": [
+                                                    "Add a list of entitlements to expose via your source"
+                                                ]
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "title": "The configuration items' types",
+                                                "examples": [
+                                                    "text",
+                                                    "number",
+                                                    "secret",
+                                                    "textarea",
+                                                    "secrettextarea",
+                                                    "checkbox",
+                                                    "url",
+                                                    "radio",
+                                                    "select",
+                                                    "toggle",
+                                                    "list",
+                                                    "keyValue",
+                                                    "cardList"
+                                                ]
+                                            },
+                                            "additionalProperties": false,
+                                            "dependencies": {
+                                                "type": {
+                                                    "oneOf": [
+                                                        {
+                                                            "properties": {
+                                                                "type": {
+                                                                    "const": "cardList"
+                                                                },
+                                                                "titleKey": {
+                                                                    "type": "string",
+                                                                    "default": "",
+                                                                    "title": "The titleKey Schema",
+                                                                    "examples": [
+                                                                        "tableName"
+                                                                    ]
+                                                                },
+                                                                "subtitleKey": {
+                                                                    "type": "string",
+                                                                    "default": "",
+                                                                    "title": "The subtitleKey Schema",
+                                                                    "examples": [
+                                                                        "tableId"
+                                                                    ]
+                                                                },
+                                                                "indexKey": {
+                                                                    "type": "string",
+                                                                    "default": "",
+                                                                    "title": "The indexKey Schema",
+                                                                    "examples": [
+                                                                        "sequenceNumberForTable"
+                                                                    ]
+                                                                },
+                                                                "dragNDropEnabled": {
+                                                                    "type": "boolean",
+                                                                    "default": false,
+                                                                    "title": "The dragNDropEnabled Schema",
+                                                                    "examples": [
+                                                                        true
+                                                                    ]
+                                                                },
+                                                                "deleteButton": {
+                                                                    "type": "boolean",
+                                                                    "default": false,
+                                                                    "title": "The deleteButton Schema",
+                                                                    "examples": [
+                                                                        true
+                                                                    ]
+                                                                },
+                                                                "editButton": {
+                                                                    "type": "boolean",
+                                                                    "default": false,
+                                                                    "title": "The editButton Schema",
+                                                                    "examples": [
+                                                                        true
+                                                                    ]
+                                                                },
+                                                                "addButton": {
+                                                                    "type": "boolean",
+                                                                    "default": false,
+                                                                    "title": "The addButton Schema",
+                                                                    "examples": [
+                                                                        true
+                                                                    ]
+                                                                },
+                                                                "copyButton": {
+                                                                    "type": "boolean",
+                                                                    "default": false,
+                                                                    "title": "The copyButton Schema",
+                                                                    "examples": [
+                                                                        true
+                                                                    ]
+                                                                },
+                                                                "buttonLabel": {
+                                                                    "type": "string",
+                                                                    "default": "",
+                                                                    "title": "The buttonLabel Schema",
+                                                                    "examples": [
+                                                                        "Add Table"
+                                                                    ]
+                                                                },
+                                                                "subMenus": {
+                                                                    "type": "array",
+                                                                    "default": [],
+                                                                    "title": "The subMenus Schema",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "default": {},
+                                                                        "title": "A Schema",
+                                                                        "required": [
+                                                                            "label",
+                                                                            "items"
+                                                                        ],
+                                                                        "properties": {
+                                                                            "label": {
+                                                                                "type": "string",
+                                                                                "default": "",
+                                                                                "title": "The label Schema",
+                                                                                "examples": [
+                                                                                    "Table Information"
+                                                                                ]
+                                                                            },
+                                                                            "items": {
+                                                                                "type": "array",
+                                                                                "default": [],
+                                                                                "title": "The items Schema",
+                                                                                "items": {
+                                                                                    "type": "object",
+                                                                                    "title": "A Schema",
+                                                                                    "required": [
+                                                                                        "key",
+                                                                                        "label",
+                                                                                        "type",
+                                                                                        "required",
+                                                                                        "helpKey",
+                                                                                        "options"
+                                                                                    ],
+                                                                                    "properties": {
+                                                                                        "key": {
+                                                                                            "type": "string",
+                                                                                            "title": "The key Schema",
+                                                                                            "examples": [
+                                                                                                "tableName",
+                                                                                                "tableId",
+                                                                                                "tableType"
+                                                                                            ]
+                                                                                        },
+                                                                                        "label": {
+                                                                                            "type": "string",
+                                                                                            "title": "The label Schema",
+                                                                                            "examples": [
+                                                                                                "Airtable Name",
+                                                                                                "Airtable Id",
+                                                                                                "Table data type"
+                                                                                            ]
+                                                                                        },
+                                                                                        "type": {
+                                                                                            "type": "string",
+                                                                                            "title": "The type Schema",
+                                                                                            "examples": [
+                                                                                                "text",
+                                                                                                "radio"
+                                                                                            ]
+                                                                                        },
+                                                                                        "required": {
+                                                                                            "type": "boolean",
+                                                                                            "title": "The required Schema",
+                                                                                            "examples": [
+                                                                                                true
+                                                                                            ]
+                                                                                        },
+                                                                                        "helpKey": {
+                                                                                            "type": "string",
+                                                                                            "title": "The helpKey Schema",
+                                                                                            "examples": [
+                                                                                                "Must be a unique name"
+                                                                                            ]
+                                                                                        },
+                                                                                        "options": {
+                                                                                            "type": "array",
+                                                                                            "default": [],
+                                                                                            "title": "The options Schema",
+                                                                                            "items": {
+                                                                                                "type": "object",
+                                                                                                "title": "A Schema",
+                                                                                                "required": [
+                                                                                                    "label",
+                                                                                                    "value"
+                                                                                                ],
+                                                                                                "properties": {
+                                                                                                    "label": {
+                                                                                                        "type": "string",
+                                                                                                        "title": "The label Schema",
+                                                                                                        "examples": [
+                                                                                                            "Accounts",
+                                                                                                            "Entitlements"
+                                                                                                        ]
+                                                                                                    },
+                                                                                                    "value": {
+                                                                                                        "type": "string",
+                                                                                                        "title": "The value Schema",
+                                                                                                        "examples": [
+                                                                                                            "accounts",
+                                                                                                            "entitlements"
+                                                                                                        ]
+                                                                                                    }
+                                                                                                },
+                                                                                                "examples": [
+                                                                                                    {
+                                                                                                        "label": "Accounts",
+                                                                                                        "value": "accounts"
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "Entitlements",
+                                                                                                        "value": "entitlements"
+                                                                                                    }
+                                                                                                ]
+                                                                                            },
+                                                                                            "examples": [
+                                                                                                [
+                                                                                                    {
+                                                                                                        "label": "Accounts",
+                                                                                                        "value": "accounts"
+                                                                                                    },
+                                                                                                    {
+                                                                                                        "label": "Entitlements",
+                                                                                                        "value": "entitlements"
+                                                                                                    }
+                                                                                                ]
+                                                                                            ]
+                                                                                        }
+                                                                                    },
+                                                                                    "examples": [
+                                                                                        {
+                                                                                            "key": "tableName",
+                                                                                            "label": "Airtable Name",
+                                                                                            "type": "text",
+                                                                                            "required": true,
+                                                                                            "helpKey": "Must be a unique name"
+                                                                                        },
+                                                                                        {
+                                                                                            "key": "tableId",
+                                                                                            "label": "Airtable Id",
+                                                                                            "type": "text",
+                                                                                            "required": true,
+                                                                                            "helpKey": "Must be a unique name"
+                                                                                        },
+                                                                                        {
+                                                                                            "key": "tableType",
+                                                                                            "type": "radio",
+                                                                                            "label": "Table data type",
+                                                                                            "required": true,
+                                                                                            "options": [
+                                                                                                {
+                                                                                                    "label": "Accounts",
+                                                                                                    "value": "accounts"
+                                                                                                },
+                                                                                                {
+                                                                                                    "label": "Entitlements",
+                                                                                                    "value": "entitlements"
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    ]
+                                                                                },
+                                                                                "examples": [
+                                                                                    [
+                                                                                        {
+                                                                                            "key": "tableName",
+                                                                                            "label": "Airtable Name",
+                                                                                            "type": "text",
+                                                                                            "required": true,
+                                                                                            "helpKey": "Must be a unique name"
+                                                                                        },
+                                                                                        {
+                                                                                            "key": "tableId",
+                                                                                            "label": "Airtable Id",
+                                                                                            "type": "text",
+                                                                                            "required": true,
+                                                                                            "helpKey": "Must be a unique name"
+                                                                                        },
+                                                                                        {
+                                                                                            "key": "tableType",
+                                                                                            "type": "radio",
+                                                                                            "label": "Table data type",
+                                                                                            "required": true,
+                                                                                            "options": [
+                                                                                                {
+                                                                                                    "label": "Accounts",
+                                                                                                    "value": "accounts"
+                                                                                                },
+                                                                                                {
+                                                                                                    "label": "Entitlements",
+                                                                                                    "value": "entitlements"
+                                                                                                }
+                                                                                            ]
+                                                                                        }
+                                                                                    ]
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        "examples": [
+                                                                            {
+                                                                                "label": "Table Information",
+                                                                                "items": [
+                                                                                    {
+                                                                                        "key": "tableName",
+                                                                                        "label": "Airtable Name",
+                                                                                        "type": "text",
+                                                                                        "required": true,
+                                                                                        "helpKey": "Must be a unique name"
+                                                                                    },
+                                                                                    {
+                                                                                        "key": "tableId",
+                                                                                        "label": "Airtable Id",
+                                                                                        "type": "text",
+                                                                                        "required": true,
+                                                                                        "helpKey": "Must be a unique name"
+                                                                                    },
+                                                                                    {
+                                                                                        "key": "tableType",
+                                                                                        "type": "radio",
+                                                                                        "label": "Table data type",
+                                                                                        "required": true,
+                                                                                        "options": [
+                                                                                            {
+                                                                                                "label": "Accounts",
+                                                                                                "value": "accounts"
+                                                                                            },
+                                                                                            {
+                                                                                                "label": "Entitlements",
+                                                                                                "value": "entitlements"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "examples": [
+                                                                        [
+                                                                            {
+                                                                                "label": "Table Information",
+                                                                                "items": [
+                                                                                    {
+                                                                                        "key": "tableName",
+                                                                                        "label": "Airtable Name",
+                                                                                        "type": "text",
+                                                                                        "required": true,
+                                                                                        "helpKey": "Must be a unique name"
+                                                                                    },
+                                                                                    {
+                                                                                        "key": "tableId",
+                                                                                        "label": "Airtable Id",
+                                                                                        "type": "text",
+                                                                                        "required": true,
+                                                                                        "helpKey": "Must be a unique name"
+                                                                                    },
+                                                                                    {
+                                                                                        "key": "tableType",
+                                                                                        "type": "radio",
+                                                                                        "label": "Table data type",
+                                                                                        "required": true,
+                                                                                        "options": [
+                                                                                            {
+                                                                                                "label": "Accounts",
+                                                                                                "value": "accounts"
+                                                                                            },
+                                                                                            {
+                                                                                                "label": "Entitlements",
+                                                                                                "value": "entitlements"
+                                                                                            }
+                                                                                        ]
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    ]
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "properties": {
+                                                                "type": {
+                                                                    "const": "radio"
+                                                                },
+                                                                "options": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "label": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "value": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "label",
+                                                                            "value"
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "properties": {
+                                                                "type": {
+                                                                    "const": "select"
+                                                                },
+                                                                "options": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "label": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "value": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "label",
+                                                                            "value"
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                        {
+                                                            "properties": {
+                                                                "type": {
+                                                                    "const": "keyValue"
+                                                                },
+                                                                "keyValueKey": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "key": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "label": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "required": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "maxlength": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "key",
+                                                                        "label",
+                                                                        "type",
+                                                                        "required",
+                                                                        "maxlength"
+                                                                    ]
+                                                                },
+                                                                "keyValueValue": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "key": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "label": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "required": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "maxlength": {
+                                                                            "type": "number"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "key",
+                                                                        "label",
+                                                                        "type",
+                                                                        "required",
+                                                                        "maxlength"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        "defaultSnippets": [
+                                            {
+                                                "label": "text",
+                                                "description": "New Text Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "text"
+                                                }
+                                            },
+                                            {
+                                                "label": "secret",
+                                                "description": "New Secret Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "secret"
+                                                }
+                                            },
+                                            {
+                                                "label": "number",
+                                                "description": "New Number Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "number"
+                                                }
+                                            },
+                                            {
+                                                "label": "textarea",
+                                                "description": "New Textarea Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "textarea"
+                                                }
+                                            },
+                                            {
+                                                "label": "secrettextarea",
+                                                "description": "New Secret Textarea Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "secrettextarea"
+                                                }
+                                            },
+                                            {
+                                                "label": "checkbox",
+                                                "description": "New Checkbox Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "checkbox"
+                                                }
+                                            },
+                                            {
+                                                "label": "toggle",
+                                                "description": "New Toggle Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "toggle"
+                                                }
+                                            },
+                                            {
+                                                "label": "list",
+                                                "description": "New List Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "list"
+                                                }
+                                            },
+                                            {
+                                                "label": "url",
+                                                "description": "New URL Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "url"
+                                                }
+                                            },
+                                            {
+                                                "label": "radio",
+                                                "description": "New Radio Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "radio",
+                                                    "options": [
+                                                        {
+                                                            "label": "$4",
+                                                            "value": "$5"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "label": "select",
+                                                "description": "New Select Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "select",
+                                                    "options": [
+                                                        {
+                                                            "label": "$4",
+                                                            "value": "$5"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "label": "kv",
+                                                "description": "New Key Value Field",
+                                                "body": {
+                                                    "key": "$1",
+                                                    "label": "$2",
+                                                    "required": "^${3|true,false|}",
+                                                    "type": "keyValue",
+                                                    "keyValueKey": {
+                                                        "key": "key",
+                                                        "label": "Key",
+                                                        "type": "text",
+                                                        "required": true,
+                                                        "maxlength": "4096"
+                                                    },
+                                                    "keyValueValue": {
+                                                        "key": "value",
+                                                        "label": "Value",
+                                                        "type": "text",
+                                                        "required": true,
+                                                        "maxlength": "4096"
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "accountSchema": {
+            "type": "object",
+            "default": {},
+            "description": "The schema for an account in ISC populated by data from the source.",
+            "required": [
+                "displayAttribute",
+                "identityAttribute",
+                "groupAttribute",
+                "attributes"
+            ],
+            "properties": {
+                "displayAttribute": {
+                    "type": "string",
+                    "description": "Identifies the attribute (defined below) used to map to Account Name in the Identity Security Cloud account schema. This should be a unique value even though it is not required because the connector will use this value to correlate accounts in ISC to accounts in the source system.",
+                    "markdownDescription": "Identifies the attribute (defined below) used to map to `Account Name` in the Identity Security Cloud account schema. This should be a unique value even though it is not required because the connector will use this value to correlate accounts in ISC to accounts in the source system.",
+                    "examples": [
+                        "name"
+                    ]
+                },
+                "identityAttribute": {
+                    "type": "string",
+                    "description": "Identifies the attribute (defined below) used to map to Account ID in the Identity Security Cloud account schema. This must be a globally unique identifier, such as email address, employee ID, etc.",
+                    "markdownDescription": "Identifies the attribute (defined below) used to map to `Account ID` in the Identity Security Cloud account schema. This must be a globally unique identifier, such as email address, employee ID, etc.",
+                    "examples": [
+                        "id"
+                    ]
+                },
+                "groupAttribute": {
+                    "type": "string",
+                    "description": "Identifies the attribute used to map accounts to entitlements. For example, a web service can define groups that users are members of, and the groups grant entitlements to each user. In this case, groupAttribute is “groups”, and there is also an account attribute called “groups”.",
+                    "markdownDescription": "Identifies the attribute used to map accounts to entitlements. For example, a web service can define `groups` that users are members of, and the `groups` grant entitlements to each user. In this case, **groupAttribute** is “groups”, and there is also an account attribute called “groups”.",
+                    "examples": [
+                        "entitlements"
+                    ]
+                },
+                "attributes": {
+                    "type": "array",
+                    "default": [],
+                    "description": "One or more attributes that map to a user’s attribute on the target source.",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "name",
+                            "type",
+                            "description",
+                            "entitlement",
+                            "managed",
+                            "multi"
+                        ],
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "The attribute's name as it appears in ISC.",
+                                "examples": [
+                                    "displayName",
+                                    "id",
+                                    "email",
+                                    "department",
+                                    "firstName",
+                                    "lastName",
+                                    "entitlements"
+                                ]
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "The attribute's type",
+                                "enum": [
+                                    "string",
+                                    "boolean",
+                                    "long",
+                                    "int"
+                                ],
+                                "examples": [
+                                    "string"
+                                ]
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "A helpful description of the attribute. This is useful to source owners when they are trying to understand the account schema.",
+                                "examples": [
+                                    "unique Id of the account"
+                                ]
+                            },
+                            "entitlement": {
+                                "type": "boolean",
+                                "default": false,
+                                "title": "The boolean indicates whether the attribute is an entitlement.",
+                                "description": "This boolean indicates whether the attribute is an entitlement. Entitlements give identities privileges on the source system. Use this indication to determine which fields to synchronize with accounts in ISC for tasks such as separation of duties and role assignment. ",
+                                "examples": [
+                                    true
+                                ]
+                            },
+                            "managed": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "This indicates whether the entitlements are manageable through ISC or read-only.",
+                                "examples": [
+                                    true
+                                ]
+                            },
+                            "multi": {
+                                "type": "boolean",
+                                "default": false,
+                                "description": "This indicates entitlements that are stored in an array format. This one field can store multiple entitlements for a single account.",
+                                "examples": [
+                                    true
+                                ]
+                            }
+                        },
+                        "defaultSnippets": [
+                            {
+                                "label": "attribute",
+                                "description": "Add new attribute to the schema",
+                                "body": {
+                                    "name": "$1",
+                                    "type": "${2|string,boolean,long,int|}",
+                                    "description": "$3"
+                                }
+                            },
+                            {
+                                "label": "entitlement",
+                                "description": "Add new entitlement to the schema",
+                                "body": {
+                                    "name": "$1",
+                                    "type": "${2|string,boolean,long,int|}",
+                                    "description": "$3",
+                                    "entitlement": true,
+                                    "managed": true,
+                                    "multi": true
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "entitlementSchemas": {
+            "type": "array",
+            "default": [],
+            "description": "A list of entitlement schemas in ISC populated by data from the source.",
+            "items": {
+                "type": "object",
+                "default": {},
+                "description": "",
+                "required": [
+                    "type",
+                    "displayAttribute",
+                    "identityAttribute",
+                    "attributes"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "const": "group",
+                        "description": "The entitlement's type. Currently, only group is supported.",
+                        "markdownDescription": "The entitlement's type. Currently, only `group` is supported."
+                    },
+                    "displayAttribute": {
+                        "type": "string",
+                        "default": "",
+                        "description": "The entitlement attribute's name. This can be the name or another human friendly identifier for a group.",
+                        "markdownDescription": "The entitlement attribute's name. This can be the `name` or another human friendly identifier for a group.",
+                        "examples": [
+                            "name"
+                        ]
+                    },
+                    "identityAttribute": {
+                        "type": "string",
+                        "description": "The entitlement attribute's unique ID. This can be the id or another unique key for a group.",
+                        "markdownDescription": "The entitlement attribute's unique ID. This can be the `id` or another unique key for a group.",
+                        "examples": [
+                            "id"
+                        ]
+                    },
+                    "attributes": {
+                        "type": "array",
+                        "default": [],
+                        "description": "The entitlement's list of attributes.",
+                        "items": {
+                            "type": "object",
+                            "description": "",
+                            "required": [
+                                "name",
+                                "type",
+                                "description"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "The name of the attribute as it appears in ISC.",
+                                    "examples": [
+                                        "id",
+                                        "name"
+                                    ]
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "description": "The attribute's type",
+                                    "enum": [
+                                        "string",
+                                        "boolean",
+                                        "long",
+                                        "int"
+                                    ],
+                                    "examples": [
+                                        "string"
+                                    ]
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "title": "A helpful description the attribute.",
+                                    "examples": [
+                                        "Unique ID of the group (ex. admin)",
+                                        "The display name of the group (ex. Admin)"
+                                    ]
+                                }
+                            },
+                            "defaultSnippets": [
+                                {
+                                    "label": "attribute",
+                                    "description": "Add new attribute to the schema",
+                                    "body": {
+                                        "name": "$1",
+                                        "type": "${2|string,boolean,long,int|}",
+                                        "description": "$3"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "accountCreateTemplate": {
+            "type": "object",
+            "default": {},
+            "description": "A map of identity attributes ISC will pass to the connector to create an account in the target source.",
+            "required": [
+                "fields"
+            ],
+            "properties": {
+                "fields": {
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "type": "object",
+                        "description": "",
+                        "required": [
+                            "key",
+                            "label",
+                            "type"
+                        ],
+                        "properties": {
+                            "key": {
+                                "type": "string",
+                                "description": "The unique identifier of the attribute. This is also the name that is presented in the Create Profile screen in ISC.",
+                                "examples": [
+                                    "email",
+                                    "id",
+                                    "password",
+                                    "department",
+                                    "displayName",
+                                    "firstName",
+                                    "lastName"
+                                ]
+                            },
+                            "label": {
+                                "type": "string",
+                                "description": "A friendly name for presentation purposes.",
+                                "examples": [
+                                    "Email"
+                                ]
+                            },
+                            "type": {
+                                "type": "string",
+                                "description": "The attribute's type",
+                                "enum": [
+                                    "string",
+                                    "boolean",
+                                    "long",
+                                    "int"
+                                ],
+                                "examples": [
+                                    "string"
+                                ]
+                            },
+                            "required": {
+                                "type": "boolean",
+                                "description": "Determines whether the account create operation requires this attribute. It defaults to false. If it is true and Identity Security Cloud encounters an identity missing this attribute, ISC does not send the account to the connector for account creation.",
+                                "markdownDescription": "Determines whether the account create operation requires this attribute. It defaults to `false`. If it is `true` and Identity Security Cloud encounters an identity missing this attribute, ISC does not send the account to the connector for account creation.",
+                                "examples": [
+                                    true
+                                ]
+                            },
+                            "initialValue": {
+                                "type": "object",
+                                "description": "Use this to specify identitAttribute mapping, generator or default values.",
+                                "required": [
+                                    "type",
+                                    "attributes"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "description": "The initial value type.",
+                                        "enum": [
+                                            "identityAttribute",
+                                            "generator",
+                                            "static"
+                                        ],
+                                        "examples": [
+                                            "identityAttribute"
+                                        ]
+                                    },
+                                    "attributes": {
+                                        "type": "object",
+                                        "description": "Attributes change depending on the type selected",
+                                        "required": [
+                                            "name"
+                                        ],
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "description": "Use this to identify the mapping for identityAttribute type, or the generator to use (Create Password, Create Unique Account ID).",
+                                                "markdownDescription": "Use this to identify the mapping for identityAttribute type, or the generator to use (`Create Password`, `Create Unique Account ID`).",
+                                                "examples": [
+                                                    "email",
+                                                    "uid",
+                                                    "Create Password",
+                                                    "department",
+                                                    "displayName",
+                                                    "firstname",
+                                                    "lastname"
+                                                ]
+                                            },
+                                            "value": {
+                                                "type": "string",
+                                                "description": "Use this as the default value for the static type.",
+                                                "markdownDescription": "Use this to identify the mapping for identityAttribute type, or the generator to use (`Create Password`, `Create Unique Account ID`)."
+                                            },
+                                            "maxSize": {
+                                                "type": "string",
+                                                "description": "Use this for the Create Unique Account ID generator type. This value specifies the maximum size of the username to be generated."
+                                            },
+                                            "maxUniqueChecks": {
+                                                "type": "string",
+                                                "description": "Use this for the Create Unique Account ID generator type. This value specifies the maximum retries in case a unique ID is not found with the first random generated user."
+                                            },
+                                            "template": {
+                                                "type": "string",
+                                                "description": "Use this for the Create Unique Account ID generator type. This value specifies the template used for generation. Example: \"$(firstname).$(lastname)$(uniqueCounter)\".",
+                                                "markdownDescription": "Use this for the Create Unique Account ID generator type. This value specifies the template used for generation. Example: `$(firstname).$(lastname)$(uniqueCounter)`."
+                                            }
+                                        }
+                                    }
+                                },
+                                "examples": [
+                                    {
+                                        "type": "identityAttribute",
+                                        "attributes": {
+                                            "name": "email"
+                                        }
+                                    },
+                                    {
+                                        "type": "identityAttribute",
+                                        "attributes": {
+                                            "name": "uid"
+                                        }
+                                    },
+                                    {
+                                        "type": "generator",
+                                        "attributes": {
+                                            "name": "Create Password"
+                                        }
+                                    },
+                                    {
+                                        "type": "identityAttribute",
+                                        "attributes": {
+                                            "name": "department"
+                                        }
+                                    },
+                                    {
+                                        "type": "identityAttribute",
+                                        "attributes": {
+                                            "name": "displayName"
+                                        }
+                                    },
+                                    {
+                                        "type": "identityAttribute",
+                                        "attributes": {
+                                            "name": "firstname"
+                                        }
+                                    },
+                                    {
+                                        "type": "identityAttribute",
+                                        "attributes": {
+                                            "name": "lastname"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "examples": [
+                            {
+                                "key": "email",
+                                "label": "Email",
+                                "type": "string",
+                                "required": true,
+                                "initialValue": {
+                                    "type": "identityAttribute",
+                                    "attributes": {
+                                        "name": "email"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "id",
+                                "label": "id",
+                                "type": "string",
+                                "required": true,
+                                "initialValue": {
+                                    "type": "identityAttribute",
+                                    "attributes": {
+                                        "name": "uid"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "password",
+                                "label": "Password",
+                                "type": "string",
+                                "required": true,
+                                "initialValue": {
+                                    "type": "generator",
+                                    "attributes": {
+                                        "name": "Create Password"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "department",
+                                "label": "Department",
+                                "type": "string",
+                                "required": false,
+                                "initialValue": {
+                                    "type": "identityAttribute",
+                                    "attributes": {
+                                        "name": "department"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "displayName",
+                                "label": "Display Name",
+                                "type": "string",
+                                "required": false,
+                                "initialValue": {
+                                    "type": "identityAttribute",
+                                    "attributes": {
+                                        "name": "displayName"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "firstName",
+                                "label": "First Name",
+                                "type": "string",
+                                "required": false,
+                                "initialValue": {
+                                    "type": "identityAttribute",
+                                    "attributes": {
+                                        "name": "firstname"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "lastName",
+                                "label": "Last Name",
+                                "type": "string",
+                                "required": false,
+                                "initialValue": {
+                                    "type": "identityAttribute",
+                                    "attributes": {
+                                        "name": "lastname"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

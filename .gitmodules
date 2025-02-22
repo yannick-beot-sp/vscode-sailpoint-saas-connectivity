@@ -1,0 +1,3 @@
+[submodule "submodules/sailpoint-cli"]
+	path = submodules/sailpoint-cli
+	url = https://github.com/sailpoint-oss/sailpoint-cli/

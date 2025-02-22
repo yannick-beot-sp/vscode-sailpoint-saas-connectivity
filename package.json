@@ -17,6 +17,12 @@
         "command": "vscode-sailpoint-saas-connectivity.helloWorld",
         "title": "Hello World"
       }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "**/connector-spec.json",
+        "url": "./schemas/connector-spec.schema.json"
+      }
     ]
   },
   "scripts": {
