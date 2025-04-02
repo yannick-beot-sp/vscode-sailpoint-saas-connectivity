@@ -10,18 +10,18 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
     public onDidChangeTreeData: vscode.Event<any> = this._onDidChangeTreeData.event;
     dropMimeTypes: readonly string[] = [constants.DROP_MIME_TYPE];
     dragMimeTypes: readonly string[] = ["text/uri-list"];
-    // Keep track of any nodes we create so that we can re-use the same objects.
-    private nodes: Map<string, BaseTreeItem> = new Map();
 
     private readonly iscExtensionClient: ISCExtensionClient
-    private readonly extensionUri: vscode.Uri
 
     ////////////////////////////////
     //#region Constructor
     ////////////////////////////////
 
-    constructor(context: vscode.ExtensionContext) {
+    constructor(private readonly context: vscode.ExtensionContext) {
 
+
+        context.subscriptions.push(
+            vscode.commands.registerCommand(constants.REFRESH, this.refresh, this))
 
         context.subscriptions.push(
             vscode.window.createTreeView(
@@ -30,7 +30,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
         );
 
         this.iscExtensionClient = new ISCExtensionClient()
-        this.extensionUri = context.extensionUri
+        this.iscExtensionClient.register(() => { this.refresh() })
     }
 
     ////////////////////////////////
@@ -50,15 +50,24 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
             console.log("< getChildren", results);
             return results;
         }
-        
+
     }
 
-    public getTreeItem(element: BaseTreeItem): vscode.TreeItem {
-        return element;
+    public getTreeItem(item: BaseTreeItem): vscode.TreeItem {
+        console.log("> getTreeItem", item);
+        item.updateIcon(this.context);
+        console.log("after update", item);
+
+        if (item.contextValue !== item.computedContextValue) {
+            const newItem = {
+                ...item,
+                contextValue: item.computedContextValue
+            };
+            return newItem;
+        } else {
+            return item;
+        }
     }
-
-
-
 
     dispose(): void {
         // nothing to dispose
@@ -79,7 +88,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
 
         const treeItems: BaseTreeItem[] = transferItem.value;
         for (const item of treeItems) {
-            
+
         }
 
     }
@@ -102,7 +111,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
 
 
     refresh(node?: BaseTreeItem): void {
-        console.log('> ISCDataProvider.refresh');
+        console.log('> SaaSConnectivityView.refresh');
         if (node) {
             this._onDidChangeTreeData.fire([node]);
         } else {
@@ -110,7 +119,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
         }
     }
 
-    
+
 
     /////////////////////
     //#endregion Commands
@@ -120,7 +129,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
     //#region Private methods
     /////////////////////////////
 
-    
+
     /////////////////////////////
     //#endregion Private methods
     /////////////////////////////

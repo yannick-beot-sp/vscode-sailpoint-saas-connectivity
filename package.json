@@ -49,10 +49,121 @@
     ],
     "commands": [
       {
-        "command": "vscode-sailpoint-saas-connectivity.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-sailpoint-saas-connectivity.add-tenant",
+        "title": "Add tenant...",
+        "icon": "$(add)"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.tenant.set-writable",
+        "title": "Read-only",
+        "icon": "$(lock)"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.tenant.set-readonly",
+        "title": "Writable",
+        "icon": "$(unlock)"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.folder.add-root",
+        "title": "Add folder",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.folder.add",
+        "title": "Add folder",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.folder.remove",
+        "title": "Remove folder"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.folder.rename",
+        "title": "Rename folder"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vscode-sailpoint-saas-connectivity.add-tenant",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.tenant.set-readonly",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.tenant.set-writable",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.folder.add-root",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.folder.add",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.folder.remove",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.refresh",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.folder.rename",
+          "when": "never"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "vscode-sailpoint-saas-connectivity.folder.add-root",
+          "when": "view == vscode-sailpoint-saas-connectivity.view",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.add-tenant",
+          "when": "view == vscode-sailpoint-saas-connectivity.view",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.refresh",
+          "when": "view == vscode-sailpoint-saas-connectivity.view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "vscode-sailpoint-saas-connectivity.tenant.set-readonly",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == tenantWritable",
+          "group": "inline@1"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.tenant.set-writable",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == tenantReadOnly",
+          "group": "inline@1"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.folder.add",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == folder"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.folder.remove",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == folder"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.folder.rename",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == folder"
+        }
+      ]
+    },
     "jsonValidation": [
       {
         "fileMatch": "**/connector-spec.json",
