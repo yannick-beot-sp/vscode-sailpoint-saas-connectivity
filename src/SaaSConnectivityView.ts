@@ -2,7 +2,8 @@ import * as vscode from 'vscode';
 import * as constants from './constants';
 import { ISCExtensionClient } from './iscextension/iscextension-client';
 import { convertToBaseTreeItem } from './iscextension/convertToBaseTreeItem';
-import { BaseTreeItem, TenantFolderTreeItem, TenantTreeItem } from './iscextension/iscextension-treeitems';
+import { BaseTreeItem, TenantFolderTreeItem, TenantTreeItem } from './models/TreeModel';
+
 
 export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeItem>, vscode.TreeDragAndDropController<BaseTreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<(BaseTreeItem | undefined)[] | undefined> = new vscode.EventEmitter<BaseTreeItem[] | undefined>();
@@ -46,7 +47,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
             return await element.getChildren()
         } else {
             const roots = this.iscExtensionClient.getRoots()
-            const results = roots.map(x => convertToBaseTreeItem(x))
+            const results = roots.map(x => convertToBaseTreeItem(x, this.iscExtensionClient))
             console.log("< getChildren", results);
             return results;
         }
@@ -88,7 +89,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
 
         const treeItems: BaseTreeItem[] = transferItem.value;
         for (const item of treeItems) {
-
+            this.iscExtensionClient.moveNode(item.id!, target?.id)
         }
 
     }

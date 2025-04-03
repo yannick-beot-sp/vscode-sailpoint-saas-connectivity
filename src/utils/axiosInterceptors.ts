@@ -28,7 +28,7 @@ export const onErrorResponse = async (error: AxiosError | Error) => {
         const { statusText, status, data } = error.response as AxiosResponse ?? {};
 
         console.error(
-            `[ISCClient] ${method?.toUpperCase()} ${url} | Error ${status} ${message} | ${JSON.stringify(data)}`, error
+            `[SaaSClient] ${method?.toUpperCase()} ${url} | Error ${status} ${message} | ${JSON.stringify(data)}`, error
         );
         /*
         if (data !== undefined && typeof data === "string") {
@@ -39,7 +39,7 @@ export const onErrorResponse = async (error: AxiosError | Error) => {
 
     } else {
         const caller = (new Error()).stack?.split("\n")[2].trim().split(" ")[1];
-        console.error(`[ISCClient] ${caller?.toUpperCase()} ${error.message}`, error);
+        console.error(`[SaaSClient] ${caller?.toUpperCase()} ${error.message}`, error);
         errorMessage = error.message;
     }
     return Promise.reject(error);

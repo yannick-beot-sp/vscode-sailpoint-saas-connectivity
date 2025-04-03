@@ -14,13 +14,18 @@ enum TenantServiceEventType {
 
 interface iscAPI {
     getRoots: () => Array<TenantInfo | FolderTreeNode>
+    getChildren: (id: string | undefined) => Array<TenantInfo | FolderTreeNode>
     registerTreeUpdate: (o: Observer<TenantServiceEventType, any>) => void
+    moveNode: (nodeIdToMove: string, targetFolderId?: string) => void
+    getAccessToken: (tenantId: string) => Promise<string>
 }
 
 
 
 
 export class ISCExtensionClient {
+
+
 
     private readonly importedApi;
 
@@ -36,9 +41,22 @@ export class ISCExtensionClient {
         return this.importedApi.getRoots()
     }
 
+    getChildren(id: string | undefined) {
+        return this.importedApi.getChildren(id)
+    }
+
     public register(cb: () => void) {
         this.importedApi.registerTreeUpdate({
             update: cb
         })
     }
+
+    public moveNode(nodeIdToMove: string, targetFolderId?: string): void {
+        this.importedApi.moveNode(nodeIdToMove, targetFolderId)
+    }
+
+    async getAccessToken(tenantId: string): Promise<string> {
+        return await this.importedApi.getAccessToken(tenantId)
+    }
+
 }

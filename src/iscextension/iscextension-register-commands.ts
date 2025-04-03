@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as iscCommands from './iscextension-commands';
 import * as constants from '../constants';
-import { TenantFolderTreeItem, TenantTreeItem } from './iscextension-treeitems';
+import { TenantFolderTreeItem, TenantTreeItem } from '../models/TreeModel';
 
 
 export function registerISCExtentionCommands(context: vscode.ExtensionContext) {
