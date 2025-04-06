@@ -3,6 +3,17 @@
   "displayName": "SailPoint SaaS Connectivity",
   "description": "Extension to develop SaaS connectors for SailPoint Identity Security Cloud",
   "version": "0.0.1",
+  "publisher": "yannick-beot-sp",
+  "license": "SEE LICENSE IN LICENSE.txt",
+  "icon": "resources/saas-connectivity.png",
+  "bugs": {
+    "url": "https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity.git"
+  },
+  "homepage": "https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/",
   "engines": {
     "vscode": "^1.97.0"
   },
@@ -21,7 +32,6 @@
   "preview": true,
   "activationEvents": [],
   "main": "./dist/extension.js",
-  "license": "MIT",
   "contributes": {
     "viewsContainers": {
       "activitybar": [

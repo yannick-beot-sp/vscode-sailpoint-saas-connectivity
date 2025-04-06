@@ -1,71 +1,169 @@
-# vscode-sailpoint-saas-connectivity README
+<a id="readme-top"></a>
 
-This is the README for your extension "vscode-sailpoint-saas-connectivity". After writing up a brief description, we recommend including the following sections.
+<!--  based on https://github.com/othneildrew/Best-README-Template -->
 
-## Features
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity">
+    <img src="resources/saas-connectivity.png" alt="Logo" width="256" height="160">
+  </a>
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+<h3 align="center">SailPoint SaaS Connectivity for Visual Studio Code</h3>
 
-For example if there is an image subfolder under your extension project workspace:
+  <p align="center">
+    Extension to easily manage SailPoint SaaS Connectivity
+    <br />
+    <br />
+    <a href="#release-notes">View Release Notes</a>
+    &middot;
+    <a href="#usage">View Demo</a>
+    &middot;
+    <a href="https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/issues/new?labels=bug&template=bug_report.md">Report Bug</a>
+    &middot;
+    <a href="https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/issues/new?template=feature_request.md">Request Feature</a>
+  </p>
+</div>
 
-\!\[feature X\]\(images/feature-x.png\)
+<!-- PROJECT SHIELDS -->
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![project_license][license-shield]][license-url]
 
-## Requirements
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-this-extension">About this extension</a>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#release-notes">Release Notes</a></li>
+    <li>
+      <a href="#contributing">Contributing</a>
+      <ul>
+        <li><a href="#top-contributors">Top contributors</a></li>
+      </ul>
+    </li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+<!-- ABOUT THIS EXTENSION -->
 
-## Extension Settings
+## About this extension
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+> **This extension is not developed, maintained or supported by SailPoint.**
+> **It is a community effort to help manage SaaS Connectivity from Visual Studio Code.**
 
-For example:
+<!--[![Product Name Screen Shot][product-screenshot]](https://example.com)-->
 
-This extension contributes the following settings:
+The SailPoint SaaS Connectivity extension makes it easy to:
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- View, edit users and add them to roles
+- View roles users and add users
 
-## Known Issues
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+<!-- GETTING STARTED -->
+
+## Getting Started
+
+### Installation
+
+Go to the extension menu or press `Ctrl`+`Shift`+`X` and look for the extension "SailPoint SaaS Connectivity". Click on the button `Install`.
+
+The VSIX can be installed from the extension menu. Press `Ctrl`+`Shift`+`X` and in the menu, click `Install from VSIX...`.
+
+<!-- USAGE EXAMPLES -->
+
+## Usage
+
+
+<!-- ROADMAP -->
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.1
 
-### 1.0.0
+Initial release
 
-Initial release of ...
+- List of tenants and folders linked to ISC Extension
+- Create/Delete/Rename connectors
+- Upload a zip or deploy local zip for a connector
+- Start/stop streaming logs from an instance
 
-### 1.0.1
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Fixed issue #.
+<!-- CONTRIBUTING -->
 
-### 1.1.0
+## Contributing
 
-Added features X, Y, and Z.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
----
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
 
-## Following extension guidelines
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+### Top contributors:
 
-## Working with Markdown
+<a href="https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=yannick-beot-sp/vscode-sailpoint-saas-connectivity" alt="contrib.rocks image" />
+</a>
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+<!-- LICENSE -->
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+## License
 
-## For more information
+Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-**Enjoy!**
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+[contributors-shield]: https://img.shields.io/github/contributors/yannick-beot-sp/vscode-sailpoint-saas-connectivity.svg?style=for-the-badge
+[contributors-url]: https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/yannick-beot-sp/vscode-sailpoint-saas-connectivity.svg?style=for-the-badge
+[forks-url]: https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/network/members
+[stars-shield]: https://img.shields.io/github/stars/yannick-beot-sp/vscode-sailpoint-saas-connectivity.svg?style=for-the-badge
+[stars-url]: https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/stargazers
+[issues-shield]: https://img.shields.io/github/issues/yannick-beot-sp/vscode-sailpoint-saas-connectivity.svg?style=for-the-badge
+[issues-url]: https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/issues
+[license-shield]: https://img.shields.io/github/license/yannick-beot-sp/vscode-sailpoint-saas-connectivity.svg?style=for-the-badge
+[license-url]: https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/linkedin_username
+[product-screenshot]: images/screenshot.png
+[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
+[Next-url]: https://nextjs.org/
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
+[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
+[Vue-url]: https://vuejs.org/
+[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
+[Angular-url]: https://angular.io/
+[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
+[Svelte-url]: https://svelte.dev/
+[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
+[Laravel-url]: https://laravel.com
+[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
+[Bootstrap-url]: https://getbootstrap.com
+[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
+[JQuery-url]: https://jquery.com

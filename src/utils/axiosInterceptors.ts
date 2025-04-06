@@ -30,12 +30,6 @@ export const onErrorResponse = async (error: AxiosError | Error) => {
         console.error(
             `[SaaSClient] ${method?.toUpperCase()} ${url} | Error ${status} ${message} | ${JSON.stringify(data)}`, error
         );
-        /*
-        if (data !== undefined && typeof data === "string") {
-            errorMessage = data
-        } else {
-            errorMessage = message
-        }*/
 
     } else {
         const caller = (new Error()).stack?.split("\n")[2].trim().split(" ")[1];
