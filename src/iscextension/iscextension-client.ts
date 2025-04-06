@@ -18,6 +18,7 @@ interface iscAPI {
     registerTreeUpdate: (o: Observer<TenantServiceEventType, any>) => void
     moveNode: (nodeIdToMove: string, targetFolderId?: string) => void
     getAccessToken: (tenantId: string) => Promise<string>
+    isTenantReadonly: (tenantId: string) => boolean
 }
 
 
@@ -57,6 +58,10 @@ export class ISCExtensionClient {
 
     async getAccessToken(tenantId: string): Promise<string> {
         return await this.importedApi.getAccessToken(tenantId)
+    }
+
+    isTenantReadonly(tenantId: string): boolean {
+        return this.importedApi.isTenantReadonly(tenantId)
     }
 
 }

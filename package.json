@@ -98,6 +98,10 @@
         "command": "vscode-sailpoint-saas-connectivity.connector.create",
         "title": "Create connector",
         "icon": "$(add)"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.connector.delete",
+        "title": "Delete connector"
       }
     ],
     "menus": {
@@ -144,6 +148,10 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.connector.create",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector.delete",
           "when": "never"
         }
       ],
@@ -204,6 +212,10 @@
           "command": "vscode-sailpoint-saas-connectivity.connector.create",
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == connectors",
           "group": "inline@1"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector.delete",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == connector"
         }
       ]
     },
