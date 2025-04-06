@@ -1,14 +1,13 @@
 import { AxiosInstance } from 'axios';
 import { Connector, CreateConnectorRequest, CreateConnectorResponse, LogEvents, LogMessage, LogRequest, } from '../models/API';
+import { compareCaseInsensitive } from '../utils/compare';
 
 export class SaaSConnectivityClient {
-    constructor(private readonly axios: AxiosInstance) {
-
-    }
+    constructor(private readonly axios: AxiosInstance) {}
 
     public async getConnectors(): Promise<Connector[]> {
         const response = await this.axios.get<Connector[]>("platform-connectors")
-        return response.data
+        return response.data.sort((a, b) => compareCaseInsensitive(a, b, "alias"))
     }
 
     public async getLogs(input: LogRequest): Promise<LogEvents> {
@@ -38,7 +37,7 @@ export class SaaSConnectivityClient {
         const response = await this.axios.post<CreateConnectorResponse>("platform-connectors", input)
         return response.data
     }
-    
+
     public async deleteConnector(id: string) {
         const response = await this.axios.delete(`platform-connectors/${id}`)
     }

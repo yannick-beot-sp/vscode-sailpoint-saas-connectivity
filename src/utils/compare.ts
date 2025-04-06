@@ -1,4 +1,4 @@
-function compareCaseInsensitive(a: any, b: any, property: string) {
+export function compareCaseInsensitive(a: any, b: any, property: string) {
     return a[property].localeCompare(b[property], undefined, { sensitivity: 'base' })
 }
 
