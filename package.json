@@ -110,6 +110,10 @@
       {
         "command": "vscode-sailpoint-saas-connectivity.connector.upload",
         "title": "Upload connector..."
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.connector.deploy",
+        "title": "Deploy connector..."
       }
     ],
     "menus": {
@@ -168,6 +172,10 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.connector.upload",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector.deploy",
           "when": "never"
         }
       ],
@@ -239,6 +247,10 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.connector.upload",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == connector"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector.deploy",
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == connector"
         }
       ]

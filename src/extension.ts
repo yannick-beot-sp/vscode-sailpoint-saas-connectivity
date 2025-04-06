@@ -6,7 +6,7 @@ import { StreamingLogsCommand } from './commands/StreamingLogsCommand';
 import { CreateConnectorCommand } from './commands/CreateConnectorCommand';
 import { DeleteConnectorCommand } from './commands/DeleteConnectorCommand';
 import { RenameConnectorCommand } from './commands/RenameConnectorCommand';
-import { UploadConnectorCommand } from './commands/UploadConnectorCommand';
+import { DeployConnectorCommand, UploadConnectorCommand } from './commands/UploadConnectorCommand';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -58,6 +58,13 @@ export function activate(context: vscode.ExtensionContext) {
 			constants.UPLOAD_CONNECTOR,
 			uploadConnectorCommand.execute,
 			uploadConnectorCommand))
+			
+	const deployConnectorCommand = new DeployConnectorCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.DEPLOY_CONNECTOR,
+			deployConnectorCommand.execute,
+			deployConnectorCommand))
 }
 
 // This method is called when your extension is deactivated

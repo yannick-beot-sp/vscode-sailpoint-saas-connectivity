@@ -23,3 +23,11 @@ export async function chooseFileExtended(options: vscode.OpenDialogOptions): Pro
 	}
 
 }
+
+export function getWorkspaceFolder(): undefined | string {
+    if (vscode.workspace.workspaceFolders !== undefined && vscode.workspace.workspaceFolders.length > 0) {
+        const proposedFolder = vscode.workspace.workspaceFolders[0].uri.fsPath.replace(/\\/g, "/");
+        return proposedFolder;
+    }
+    return undefined;
+}

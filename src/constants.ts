@@ -21,3 +21,4 @@ export const CREATE_CONNECTOR = `${COMMAND_PREFIX}.connector.create`;
 export const RENAME_CONNECTOR = `${COMMAND_PREFIX}.connector.rename`;
 export const DELETE_CONNECTOR = `${COMMAND_PREFIX}.connector.delete`;
 export const UPLOAD_CONNECTOR = `${COMMAND_PREFIX}.connector.upload`;
+export const DEPLOY_CONNECTOR = `${COMMAND_PREFIX}.connector.deploy`;
