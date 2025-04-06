@@ -3,6 +3,11 @@ export interface Connector {
     alias: string;
 }
 
+export interface ConnectorVersion {
+    connectorId: string
+    version: number
+}
+
 export interface LogMessage {
     tenantID: string;
     timestamp: string; // Use string for ISO 8601 compatibility, parse when needed
@@ -45,6 +50,15 @@ export interface LogRequest {
 export interface CreateConnectorRequest {
     alias: string
 }
+
 export interface CreateConnectorResponse extends Connector {
 }
+
+export interface UpdateConnectorRequest {
+    alias: string
+}
+
+export interface UpdateConnectorResponse extends Connector { }
+
+export interface UploadConnectorResponse extends ConnectorVersion { }
 

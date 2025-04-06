@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
-import { ConnectorsTreeItem } from "../models/TreeModel";
+import { ConnectorTreeItem } from "../models/TreeModel";
 import { SaaSConnectivityClientFactory } from "../services/SaaSConnectivityClientFactory";
 import { ISCExtensionClient } from "../iscextension/iscextension-client";
 import { isEmpty } from "../utils/stringUtils";
-import * as constants from './../constants';
+import * as constants from '../constants';
 
-export async function askName(tenantDisplayName: string): Promise<string | undefined> {
+export async function askName(oldname: string, tenantDisplayName: string): Promise<string | undefined> {
     const result = await vscode.window.showInputBox({
+        value: oldname,
         ignoreFocusOut: true,
         placeHolder: 'alias',
         prompt: "Enter a name for the connector",
@@ -20,25 +21,26 @@ export async function askName(tenantDisplayName: string): Promise<string | undef
     return result;
 }
 
-export class CreateConnectorCommand {
+export class RenameConnectorCommand {
+
     private readonly factory: SaaSConnectivityClientFactory
-    
+
     constructor() {
         this.factory = new SaaSConnectivityClientFactory(new ISCExtensionClient())
     }
 
-    public async execute(item: ConnectorsTreeItem) {
-        const alias = await askName(item.tenantDisplayName)
+    public async execute(item: ConnectorTreeItem) {
+        const alias = await askName(item.label, item.tenantDisplayName)
         if (alias === undefined) { return }
 
         const client = await this.factory.getSaaSConnectivityClient(item.tenantId, item.tenantName)
         try {
-            const connector = await client.createConnector(alias)
-            vscode.window.showInformationMessage(`Connector ${connector.alias} created with id ${connector.id}`)
-            vscode.commands.executeCommand(constants.REFRESH, item);
+            const connector = await client.updateConnector(item.id, alias)
+            vscode.window.showInformationMessage(`Connector ${connector.alias} renamed`)
+            vscode.commands.executeCommand(constants.REFRESH);
 
         } catch (error) {
-            vscode.window.showErrorMessage(`Could not create connector: ${error}`)
+            vscode.window.showErrorMessage(`Could not rename connector: ${error}`)
         }
     }
 

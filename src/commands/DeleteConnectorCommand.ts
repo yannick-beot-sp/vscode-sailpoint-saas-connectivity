@@ -21,7 +21,8 @@ export async function confirm(prompt: string): Promise<boolean> {
 export class DeleteConnectorCommand {
     private readonly factory: SaaSConnectivityClientFactory
     private readonly iscExtensionClient: ISCExtensionClient
-    constructor(private readonly context: vscode.ExtensionContext) {
+
+    constructor() {
         this.iscExtensionClient = new ISCExtensionClient()
         this.factory = new SaaSConnectivityClientFactory(this.iscExtensionClient)
     }

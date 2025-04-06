@@ -5,13 +5,16 @@ import { registerISCExtentionCommands } from './iscextension/iscextension-regist
 import { StreamingLogsCommand } from './commands/StreamingLogsCommand';
 import { CreateConnectorCommand } from './commands/CreateConnectorCommand';
 import { DeleteConnectorCommand } from './commands/DeleteConnectorCommand';
+import { RenameConnectorCommand } from './commands/RenameConnectorCommand';
 
 export function activate(context: vscode.ExtensionContext) {
 
 	console.log('Congratulations, your extension "vscode-sailpoint-saas-connectivity" is now active!');
 	new SaaSConnectivityView(context)
 	registerISCExtentionCommands(context)
-
+	/**
+	 * Log Streaming
+	 */
 	const streamingLogsCommand = new StreamingLogsCommand(context)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
@@ -24,13 +27,24 @@ export function activate(context: vscode.ExtensionContext) {
 			streamingLogsCommand.stop,
 			streamingLogsCommand))
 
-	const createConnectorCommand = new CreateConnectorCommand(context)
+	/**
+	 * Connector Management
+	 */
+	const createConnectorCommand = new CreateConnectorCommand()
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			constants.CREATE_CONNECTOR,
 			createConnectorCommand.execute,
 			createConnectorCommand))
-	const deleteConnectorCommand = new DeleteConnectorCommand(context)
+
+	const renameConnectorCommand = new RenameConnectorCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.RENAME_CONNECTOR,
+			renameConnectorCommand.execute,
+			renameConnectorCommand))
+
+	const deleteConnectorCommand = new DeleteConnectorCommand()
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			constants.DELETE_CONNECTOR,
