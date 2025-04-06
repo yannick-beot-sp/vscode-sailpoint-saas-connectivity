@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { AxiosInstance } from 'axios';
-import { Connector, CreateConnectorRequest, CreateConnectorResponse, LogEvents, LogMessage, LogRequest, UpdateConnectorRequest, UpdateConnectorResponse, UploadConnectorResponse, } from '../models/API';
-import { compareCaseInsensitive } from '../utils/compare';
+import { Connector, CreateConnectorRequest, CreateConnectorResponse, GetInstancesResponse, LogEvents, LogMessage, LogRequest, UpdateConnectorRequest, UpdateConnectorResponse, UploadConnectorResponse, } from '../models/API';
+import { compareByName, compareCaseInsensitive } from '../utils/compare';
 import { basename } from 'path';
 
 export class SaaSConnectivityClient {
@@ -67,5 +67,14 @@ export class SaaSConnectivityClient {
         })
         const response = await this.axios.post<UploadConnectorResponse>(`platform-connectors/${id}/versions`, file)
         return response.data
+    }
+
+    /**
+     * List source instances in your ISC Org
+     * @returns 
+     */
+    public async getInstances(): Promise<GetInstancesResponse[]> {
+        const response = await this.axios.get<GetInstancesResponse[]>("connector-instances")
+        return response.data.sort(compareByName)
     }
 }

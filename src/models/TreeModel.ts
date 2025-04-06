@@ -211,13 +211,10 @@ export class SourcesTreeItem extends SubFolderTreeItem {
     }
 
     async getChildren(): Promise<BaseTreeItem[]> {
-        const client = await this.factory.getISCClient(this.tenantId, this.tenantName)
-        const list = await client.getSources()
+        const client = await this.factory.getSaaSConnectivityClient(this.tenantId, this.tenantName)
+        const list = await client.getInstances()
 
         const results: BaseTreeItem[] = list
-            // TODO: ensure this is the right filter to identity SaaS Connectors
-            // @ts-ignore
-            .filter(x => x.cluster?.name === "sp_connect_proxy_cluster" && x.connectorAttributes?.spConnectorInstanceId)
             .map(x => new SourceTreeItem(
                 x.id!,
                 x.name,

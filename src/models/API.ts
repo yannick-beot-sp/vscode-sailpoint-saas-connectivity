@@ -62,3 +62,9 @@ export interface UpdateConnectorResponse extends Connector { }
 
 export interface UploadConnectorResponse extends ConnectorVersion { }
 
+export interface GetInstancesResponse {
+    id: string;
+    name: string;
+    connectorCustomizerId: string;
+}
+
