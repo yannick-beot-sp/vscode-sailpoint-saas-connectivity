@@ -69,8 +69,8 @@
 
 The SailPoint SaaS Connectivity extension makes it easy to:
 
-- View, edit users and add them to roles
-- View roles users and add users
+- View, create, update (rename), delete, upload a zip or deploy local zip for a SaaS connector
+- View, stream logs from sources
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
