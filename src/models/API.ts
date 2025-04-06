@@ -40,3 +40,11 @@ export interface LogRequest {
     filter: LogFilter
     nextToken?: string // Allow optional nextToken directly
 }
+
+
+export interface CreateConnectorRequest {
+    alias: string
+}
+export interface CreateConnectorResponse extends Connector {
+}
+

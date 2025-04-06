@@ -17,3 +17,5 @@ export const REFRESH = `${COMMAND_PREFIX}.refresh`;
 export const START_STREAMING_LOGS = `${COMMAND_PREFIX}.sources.logs.start`;
 export const STOP_STREAMING_LOGS = `${COMMAND_PREFIX}.sources.logs.stop`;
 
+export const CREATE_CONNECTOR = `${COMMAND_PREFIX}.connector.create`;
+

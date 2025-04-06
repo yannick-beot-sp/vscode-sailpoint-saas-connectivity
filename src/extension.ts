@@ -3,6 +3,7 @@ import * as constants from './constants';
 import { SaaSConnectivityView } from './SaaSConnectivityView';
 import { registerISCExtentionCommands } from './iscextension/iscextension-register-commands';
 import { StreamingLogsCommand } from './commands/StreamingLogsCommand';
+import { CreateConnectorCommand } from './commands/CreateConnectorCommand';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -21,6 +22,13 @@ export function activate(context: vscode.ExtensionContext) {
 			constants.STOP_STREAMING_LOGS,
 			streamingLogsCommand.stop,
 			streamingLogsCommand))
+
+	const createConnectorCommand = new CreateConnectorCommand(context)
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.CREATE_CONNECTOR,
+			createConnectorCommand.execute,
+			createConnectorCommand))
 }
 
 // This method is called when your extension is deactivated

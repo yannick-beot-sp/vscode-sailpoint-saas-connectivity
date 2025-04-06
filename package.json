@@ -93,6 +93,11 @@
       {
         "command": "vscode-sailpoint-saas-connectivity.sources.logs.stop",
         "title": "Stop streaming logs"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.connector.create",
+        "title": "Create connector",
+        "icon": "$(add)"
       }
     ],
     "menus": {
@@ -135,6 +140,10 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.sources.logs.stop",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector.create",
           "when": "never"
         }
       ],
@@ -185,6 +194,16 @@
         {
           "command": "vscode-sailpoint-saas-connectivity.sources.logs.stop",
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == source"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.refresh",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem =~ /sources|connectors/",
+          "group": "inline@50"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector.create",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == connectors",
+          "group": "inline@1"
         }
       ]
     },

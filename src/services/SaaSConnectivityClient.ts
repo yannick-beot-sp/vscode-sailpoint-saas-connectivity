@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios';
-import { Connector, LogEvents, LogMessage, LogRequest, } from '../models/API';
+import { Connector, CreateConnectorRequest, CreateConnectorResponse, LogEvents, LogMessage, LogRequest, } from '../models/API';
 
 export class SaaSConnectivityClient {
     constructor(private readonly axios: AxiosInstance) {
@@ -26,8 +26,20 @@ export class SaaSConnectivityClient {
                     yield log
                 }
             }
-            
+
             nextToken = response.nextToken
         } while (nextToken !== undefined)
+    }
+
+    public async createConnector(alias: string) {
+        const input: CreateConnectorRequest = {
+            alias
+        }
+        const response = await this.axios.post<CreateConnectorResponse>("platform-connectors", input)
+        return response.data
+    }
+    
+    public async deleteConnector(id: string) {
+        const response = await this.axios.delete(`platform-connectors/${id}`)
     }
 }
