@@ -106,6 +106,10 @@
       {
         "command": "vscode-sailpoint-saas-connectivity.connector.delete",
         "title": "Delete connector"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.connector.upload",
+        "title": "Upload connector..."
       }
     ],
     "menus": {
@@ -160,6 +164,10 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.connector.delete",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector.upload",
           "when": "never"
         }
       ],
@@ -227,6 +235,10 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.connector.delete",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == connector"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector.upload",
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == connector"
         }
       ]

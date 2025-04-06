@@ -58,7 +58,7 @@ export class SaaSConnectivityClient {
         const response = await this.axios.delete(`platform-connectors/${id}`)
     }
 
-    public async uploadConnector(id: string, filePath: string) {
+    public async uploadConnector(id: string, filePath: string):Promise<UploadConnectorResponse> {
         const fileBuffer = await fs.readFileSync(filePath);
 
         // Create a File object
