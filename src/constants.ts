@@ -13,3 +13,7 @@ export const TENANT_SET_READONLY = `${COMMAND_PREFIX}.tenant.set-readonly`;
 export const TENANT_SET_WRITABLE = `${COMMAND_PREFIX}.tenant.set-writable`;
 
 export const REFRESH = `${COMMAND_PREFIX}.refresh`;
+
+export const START_STREAMING_LOGS = `${COMMAND_PREFIX}.sources.logs.start`;
+export const STOP_STREAMING_LOGS = `${COMMAND_PREFIX}.sources.logs.stop`;
+

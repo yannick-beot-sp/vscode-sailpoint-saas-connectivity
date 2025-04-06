@@ -9,7 +9,7 @@ import { convertToBaseTreeItem } from "../iscextension/convertToBaseTreeItem";
 export abstract class BaseTreeItem extends vscode.TreeItem {
 
     constructor(
-        label: string,
+        public readonly label: string,
         public readonly tenantId: string,
         public readonly tenantName: string,
         public readonly tenantDisplayName: string,
@@ -183,8 +183,9 @@ export class ConnectorTreeItem extends BaseTreeItem {
         iscExtensionClient: ISCExtensionClient
     ) {
         super(label, tenantId, tenantName, tenantDisplayName);
-
     }
+    
+    contextValue = "connector"
 }
 
 /**
@@ -240,6 +241,14 @@ export class SourceTreeItem extends BaseTreeItem {
         iscExtensionClient: ISCExtensionClient
     ) {
         super(label, tenantId, tenantName, tenantDisplayName);
-
     }
+
+    public get logStreamLabel(): string {
+        return `${this.tenantDisplayName}/${this.label}`;
+    }
+
+    public get logStreamPath(): string {
+        return `sources/${encodeURIComponent(this.label)}`;
+    }
+    contextValue = "source"
 }

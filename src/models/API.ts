@@ -5,14 +5,14 @@ export interface Connector {
 
 export interface LogMessage {
     tenantID: string;
-    timestamp: Date; // Use string for ISO 8601 compatibility, parse when needed
+    timestamp: string; // Use string for ISO 8601 compatibility, parse when needed
     level: string;
     event: string;
     component: string;
     targetID: string;
     targetName: string;
     requestID: string;
-    message: unknown; // Equivalent to Go's interface{}
+    message: string;
 }
 
 export interface LogEvents {
@@ -21,37 +21,22 @@ export interface LogEvents {
 }
 
 export interface LogFilter {
-    startTime?: Date;
+    startTime?: string;
     endTime?: Date;
+    /** component type */
     component?: string;
     logLevels?: string[];
+    /** id of the specific target object */
     targetID?: string;
+    /** name of the specifiy target */
     targetName?: string;
+    /** associated request id */
     requestID?: string;
+    /** event name */
     event?: string;
 }
 
 export interface LogRequest {
     filter: LogFilter
     nextToken?: string // Allow optional nextToken directly
-}
-
-export interface TenantStats {
-    tenantID: string;
-    connectors: ConnectorStats[]; // Renamed from ConnectorStats for clarity
-}
-
-export interface ConnectorStats {
-    connectorID: string;
-    alias: string;
-    stats: CommandStats[];
-}
-
-export interface CommandStats {
-    commandType: string;
-    invocationCount: number; // uint32 maps to number
-    errorCount: number;      // uint32 maps to number
-    errorRate: number;       // float64 maps to number
-    elapsedAvg: number;      // float64 maps to number (milliseconds)
-    elapsed95th: number;     // float64 maps to number (milliseconds)
 }

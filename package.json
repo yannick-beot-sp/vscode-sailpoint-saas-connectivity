@@ -85,6 +85,14 @@
         "command": "vscode-sailpoint-saas-connectivity.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.sources.logs.start",
+        "title": "Start streaming logs"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.sources.logs.stop",
+        "title": "Stop streaming logs"
       }
     ],
     "menus": {
@@ -119,6 +127,14 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.folder.rename",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.sources.logs.start",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.sources.logs.stop",
           "when": "never"
         }
       ],
@@ -161,6 +177,14 @@
         {
           "command": "vscode-sailpoint-saas-connectivity.folder.rename",
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == folder"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.sources.logs.start",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == source"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.sources.logs.stop",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == source"
         }
       ]
     },
