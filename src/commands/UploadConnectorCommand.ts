@@ -26,7 +26,7 @@ export abstract class ConnectorUploader {
         const isReadOnly = this.iscExtensionClient.isTenantReadonly(item.tenantId)
 
         if ((isReadOnly && !(await confirm(`The tenant ${item.tenantDisplayName} is read-only. Do you still want to upload to the connector ${item.label}?`)))
-            || (!isReadOnly && !(await confirm(`Are you sure you want to delete the connector ${item.label}`)))) {
+            || (!isReadOnly && !(await confirm(`Are you sure you want to upload to the connector ${item.label}`)))) {
             return
         }
 
