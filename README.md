@@ -6,7 +6,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity">
-    <img src="resources/saas-connectivity.png" alt="Logo" width="256" height="160">
+    <img src="resources/saas-connectivity.png" alt="Logo" width="256" height="241">
   </a>
 
 <h3 align="center">SailPoint SaaS Connectivity for Visual Studio Code</h3>
