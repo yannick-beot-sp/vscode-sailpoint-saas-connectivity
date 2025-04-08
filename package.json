@@ -15,7 +15,7 @@
   },
   "homepage": "https://github.com/yannick-beot-sp/vscode-sailpoint-saas-connectivity/",
   "engines": {
-    "vscode": "^1.97.0"
+    "vscode": "^1.96.0"
   },
   "extensionDependencies": [
     "yannick-beot-sp.vscode-sailpoint-identitynow"
