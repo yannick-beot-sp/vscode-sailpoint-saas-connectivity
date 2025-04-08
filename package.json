@@ -2,7 +2,7 @@
   "name": "vscode-sailpoint-saas-connectivity",
   "displayName": "SailPoint SaaS Connectivity",
   "description": "Extension to develop SaaS connectors for SailPoint Identity Security Cloud",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "yannick-beot-sp",
   "license": "SEE LICENSE IN LICENSE.txt",
   "icon": "resources/saas-connectivity.png",

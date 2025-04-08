@@ -93,6 +93,12 @@ The VSIX can be installed from the extension menu. Press `Ctrl`+`Shift`+`X` and 
 
 ## Release Notes
 
+### 0.0.2
+
+- Downgrade VSCode requirement to support Cursor
+- Fix confirmation message when uploading
+
+
 ### 0.0.1
 
 Initial release
