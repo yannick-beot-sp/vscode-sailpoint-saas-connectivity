@@ -4,6 +4,12 @@ All notable changes to the "vscode-sailpoint-saas-connectivity" extension will b
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.3] - 2025-04-21
+
+### Fixed
+
+- Logging issue when logging object within the connector
+
 ## [0.0.2] - 2025-04-08
 
 ### Fixed

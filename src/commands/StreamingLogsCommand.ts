@@ -98,19 +98,42 @@ function updateLastSeenTime(oldDate: Date, newDateStr: string) {
     return oldTimestamp < newTimestamp ? newDate : oldDate
 }
 
+function checkProperties(obj: object, expectedProperties: string[]): boolean {
+    if (!obj) {
+      return false; // Handle null or undefined object
+    }
+  
+    for (const prop of expectedProperties) {
+      if (!obj.hasOwnProperty(prop)) {
+        return false; // Property is missing
+      }
+    }
+    return true; // All properties are present
+  }
+  
+  function validateLogObject(obj: object) {
+      const expectedProperties: string[] = [
+      "commandType",
+      "invocationId",
+      "level",
+      "message",
+      "requestId",
+      "version",
+    ];
+    
+      return checkProperties(obj, expectedProperties);
+  }
+
+
 function formatLog(logentry: LogMessage) {
     let message: string | undefined = undefined
     if (logentry.message !== null && logentry.message !== undefined && typeof logentry.message === 'object') {
-        // if ("level" in logentry.message) {
-        //     //@ts-ignore
-        //     delete logentry.message.level
-        // }
+        // if logging an object like logger.info(account), then message = object
         //@ts-ignore
-        message = logentry.message.message
+        message = validateLogObject(logentry.message) ? logentry.message.message : JSON.stringify(logentry.message)
     } else {
         message = logentry.message
     }
-
 
     return `${formatDateString(logentry.timestamp)} ${logentry.level.padEnd(5, " ")} [${logentry.event}] ${message}`
 }
@@ -118,24 +141,24 @@ function formatLog(logentry: LogMessage) {
 function formatDateString(isoString: string): string {
     // Parse the ISO string to a Date object
     const date = new Date(isoString);
-    
+
     // Get the locale parts using Intl.DateTimeFormat
     const formatter = new Intl.DateTimeFormat(vscode.env.language, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
     });
-    
+
     // Get the formatted date without milliseconds
     const formattedDate = formatter.format(date);
-    
+
     // Get milliseconds and ensure it's three digits
     const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
-    
+
     // Combine the formatted date with the three-digit milliseconds
     return `${formattedDate}.${milliseconds}`;
-  }
+}
