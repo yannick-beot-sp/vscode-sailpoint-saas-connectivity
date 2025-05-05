@@ -6,7 +6,8 @@ import { StreamingLogsCommand } from './commands/StreamingLogsCommand';
 import { CreateConnectorCommand } from './commands/CreateConnectorCommand';
 import { DeleteConnectorCommand } from './commands/DeleteConnectorCommand';
 import { RenameConnectorCommand } from './commands/RenameConnectorCommand';
-import { DeployConnectorCommand, UploadConnectorCommand } from './commands/UploadConnectorCommand';
+import { UploadConnectorCommand } from './commands/UploadConnectorCommand';
+import { DeployConnectorCommand } from './commands/DeployConnectorCommand';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -59,7 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
 			uploadConnectorCommand.execute,
 			uploadConnectorCommand))
 			
-	const deployConnectorCommand = new DeployConnectorCommand()
+	const deployConnectorCommand = new DeployConnectorCommand(context)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			constants.DEPLOY_CONNECTOR,

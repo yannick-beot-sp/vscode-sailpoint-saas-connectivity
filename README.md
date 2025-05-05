@@ -93,6 +93,10 @@ The VSIX can be installed from the extension menu. Press `Ctrl`+`Shift`+`X` and 
 
 ## Release Notes
 
+### 0.0.4
+
+- Deploy will also build the package
+
 ### 0.0.3
 
 - Logging issue when logging object within the connector

@@ -1,4 +1,4 @@
-const COMMAND_PREFIX = 'vscode-sailpoint-saas-connectivity';
+export const COMMAND_PREFIX = 'vscode-sailpoint-saas-connectivity';
 
 export const VIEW_CONTAINER_ID = `${COMMAND_PREFIX}.view`;
 export const DROP_MIME_TYPE = `application/vnd.code.tree.${COMMAND_PREFIX}.view`;
@@ -22,3 +22,10 @@ export const RENAME_CONNECTOR = `${COMMAND_PREFIX}.connector.rename`;
 export const DELETE_CONNECTOR = `${COMMAND_PREFIX}.connector.delete`;
 export const UPLOAD_CONNECTOR = `${COMMAND_PREFIX}.connector.upload`;
 export const DEPLOY_CONNECTOR = `${COMMAND_PREFIX}.connector.deploy`;
+
+/////////////////////////
+// Configuration
+/////////////////////////
+
+export const CONF_DEFAULT_BUILD_SCRIPT = "default.build.script"
+export const CONF_DEFAULT_BUILD_SCRIPT_VALUE = 'pack-zip'

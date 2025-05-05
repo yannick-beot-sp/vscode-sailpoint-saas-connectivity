@@ -23,7 +23,7 @@ export const onErrorResponse = async (error: AxiosError | Error) => {
 
     let errorMessage = '';
     if (isAxiosError(error)) {
-        const { message } = error;
+        let { message } = error;
         const { method, url } = error.config as AxiosRequestConfig;
         const { statusText, status, data } = error.response as AxiosResponse ?? {};
 
@@ -31,10 +31,16 @@ export const onErrorResponse = async (error: AxiosError | Error) => {
             `[SaaSClient] ${method?.toUpperCase()} ${url} | Error ${status} ${message} | ${JSON.stringify(data)}`, error
         );
 
+        if ("messages" in data) {
+            errorMessage = data.messages[0].text
+        } else {
+            errorMessage = message
+        }
+
     } else {
         const caller = (new Error()).stack?.split("\n")[2].trim().split(" ")[1];
         console.error(`[SaaSClient] ${caller?.toUpperCase()} ${error.message}`, error);
         errorMessage = error.message;
     }
-    return Promise.reject(error);
+    return Promise.reject(new Error(errorMessage));
 };
