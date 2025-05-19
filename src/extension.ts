@@ -8,6 +8,7 @@ import { DeleteConnectorCommand } from './commands/DeleteConnectorCommand';
 import { RenameConnectorCommand } from './commands/RenameConnectorCommand';
 import { UploadConnectorCommand } from './commands/UploadConnectorCommand';
 import { DeployConnectorCommand } from './commands/DeployConnectorCommand';
+import { CopyConnectorIdCommand } from './commands/CopyConnectorIdCommand';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -52,20 +53,27 @@ export function activate(context: vscode.ExtensionContext) {
 			constants.DELETE_CONNECTOR,
 			deleteConnectorCommand.execute,
 			deleteConnectorCommand))
-			
+
 	const uploadConnectorCommand = new UploadConnectorCommand()
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			constants.UPLOAD_CONNECTOR,
 			uploadConnectorCommand.execute,
 			uploadConnectorCommand))
-			
+
 	const deployConnectorCommand = new DeployConnectorCommand(context)
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			constants.DEPLOY_CONNECTOR,
 			deployConnectorCommand.execute,
 			deployConnectorCommand))
+
+	const copyConnectorIdCommand = new CopyConnectorIdCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.COPY_ID_CONNECTOR,
+			copyConnectorIdCommand.execute,
+			copyConnectorIdCommand))
 }
 
 // This method is called when your extension is deactivated

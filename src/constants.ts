@@ -23,6 +23,8 @@ export const DELETE_CONNECTOR = `${COMMAND_PREFIX}.connector.delete`;
 export const UPLOAD_CONNECTOR = `${COMMAND_PREFIX}.connector.upload`;
 export const DEPLOY_CONNECTOR = `${COMMAND_PREFIX}.connector.deploy`;
 
+export const COPY_ID_CONNECTOR = `${COMMAND_PREFIX}.connector.copy-id`;
+
 /////////////////////////
 // Configuration
 /////////////////////////

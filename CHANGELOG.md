@@ -8,6 +8,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
+- New command: copy ID of a connector
+
+## [0.0.4] - 2025-05-05
+
+### Added
+
 - Deploy will also build the package
 
 ## [0.0.3] - 2025-04-21
