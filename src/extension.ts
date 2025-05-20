@@ -8,7 +8,14 @@ import { DeleteConnectorCommand } from './commands/DeleteConnectorCommand';
 import { RenameConnectorCommand } from './commands/RenameConnectorCommand';
 import { UploadConnectorCommand } from './commands/UploadConnectorCommand';
 import { DeployConnectorCommand } from './commands/DeployConnectorCommand';
-import { CopyConnectorIdCommand } from './commands/CopyConnectorIdCommand';
+import { CopyIdCommand } from './commands/CopyIdCommand';
+import { CreateCustomizerCommand } from './commands/CreateCustomizerCommand';
+import { DeleteCustomizerCommand } from './commands/DeleteCustomizerCommand';
+import { DeployCustomizerCommand } from './commands/DeployCustomizerCommand';
+import { RenameCustomizerCommand } from './commands/RenameCustomizerCommand';
+import { UploadCustomizerCommand } from './commands/UploadCustomizerCommand';
+import { LinkCommand } from './commands/LinkCommand';
+import { UnlinkCommand } from './commands/UnlinkCommand';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -68,12 +75,64 @@ export function activate(context: vscode.ExtensionContext) {
 			deployConnectorCommand.execute,
 			deployConnectorCommand))
 
-	const copyConnectorIdCommand = new CopyConnectorIdCommand()
+	const copyIdCommand = new CopyIdCommand()
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
 			constants.COPY_ID_CONNECTOR,
-			copyConnectorIdCommand.execute,
-			copyConnectorIdCommand))
+			copyIdCommand.execute,
+			copyIdCommand))
+
+
+	/**
+	 * Customizer Management
+	 */
+	const createCustomizerCommand = new CreateCustomizerCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.CREATE_CUSTOMIZER,
+			createCustomizerCommand.execute,
+			createCustomizerCommand))
+
+	const renameCustomizerCommand = new RenameCustomizerCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.RENAME_CUSTOMIZER,
+			renameCustomizerCommand.execute,
+			renameCustomizerCommand))
+
+	const deleteCustomizerCommand = new DeleteCustomizerCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.DELETE_CUSTOMIZER,
+			deleteCustomizerCommand.execute,
+			deleteCustomizerCommand))
+
+	const uploadCustomizerCommand = new UploadCustomizerCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.UPLOAD_CUSTOMIZER,
+			uploadCustomizerCommand.execute,
+			uploadCustomizerCommand))
+
+	const deployCustomizerCommand = new DeployCustomizerCommand(context)
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.DEPLOY_CUSTOMIZER,
+			deployCustomizerCommand.execute,
+			deployCustomizerCommand))
+
+	const linkCommand = new LinkCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.LINK_CUSTOMIZER_INSTANCE,
+			linkCommand.execute,
+			linkCommand))
+	const unlinkCommand = new UnlinkCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.UNLINK_CUSTOMIZER_INSTANCE,
+			unlinkCommand.execute,
+			unlinkCommand))
 }
 
 // This method is called when your extension is deactivated

@@ -8,7 +8,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
-- New command: copy ID of a connector
+- Support for customizers
+- New command: copy ID of a connector, a source, or a customizer
 
 ## [0.0.4] - 2025-05-05
 

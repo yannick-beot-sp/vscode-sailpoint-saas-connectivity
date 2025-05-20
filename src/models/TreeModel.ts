@@ -65,11 +65,17 @@ export class TenantTreeItem extends BaseTreeItem {
                 this.tenantName,
                 this.tenantDisplayName,
                 this.iscExtensionClient),
+            new CustomizersTreeItem(
+                this.tenantId,
+                this.tenantName,
+                this.tenantDisplayName,
+                this.iscExtensionClient),
             new SourcesTreeItem(
                 this.tenantId,
                 this.tenantName,
                 this.tenantDisplayName,
-                this.iscExtensionClient)
+                this.iscExtensionClient),
+
         ]
         return results
     }
@@ -184,7 +190,7 @@ export class ConnectorTreeItem extends BaseTreeItem {
     ) {
         super(label, tenantId, tenantName, tenantDisplayName);
     }
-    
+
     contextValue = "connector"
 }
 
@@ -218,6 +224,7 @@ export class SourcesTreeItem extends SubFolderTreeItem {
             .map(x => new SourceTreeItem(
                 x.id!,
                 x.name,
+                x.connectorCustomizerId,
                 this.tenantId,
                 this.tenantName,
                 this.tenantDisplayName,
@@ -229,6 +236,94 @@ export class SourcesTreeItem extends SubFolderTreeItem {
 }
 
 export class SourceTreeItem extends BaseTreeItem {
+    private readonly factory: SaaSConnectivityClientFactory
+
+    constructor(
+        readonly id: string,
+        label: string,
+        private readonly customizerId: string | undefined,
+        tenantId: string,
+        tenantName: string,
+        tenantDisplayName: string,
+        private readonly iscExtensionClient: ISCExtensionClient
+    ) {
+        super(label, tenantId, tenantName, tenantDisplayName);
+        if (customizerId) {
+            this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed
+        }
+        this.factory = new SaaSConnectivityClientFactory(iscExtensionClient)
+    }
+
+    public async getChildren(): Promise<BaseTreeItem[]> {
+        if (this.customizerId) {
+            const client = await this.factory.getSaaSConnectivityClient(this.tenantId, this.tenantName)
+            const customizers = await client.getCustomizers()
+            const customizer = customizers.find(x => x.id === this.customizerId)
+            if (customizer) {
+                return [new CustomizerInstanceLinkTreeItem(
+                    `${this.id}-${this.customizerId}`, // compute unique id
+                    customizer.name,
+                    this.id,
+                    this.tenantId,
+                    this.tenantName,
+                    this.tenantDisplayName,
+                    this.iscExtensionClient
+                )]
+            }
+
+        }
+        return []
+    }
+
+    public get logStreamLabel(): string {
+        return `${this.tenantDisplayName}/${this.label}`;
+    }
+
+    public get logStreamPath(): string {
+        return `sources/${encodeURIComponent(this.label)}`;
+    }
+    contextValue = "source"
+}
+
+/**
+ * Containers for customizers
+ */
+export class CustomizersTreeItem extends SubFolderTreeItem {
+    private readonly factory: SaaSConnectivityClientFactory
+    constructor(
+        tenantId: string,
+        tenantName: string,
+        tenantDisplayName: string,
+        iscExtensionClient: ISCExtensionClient
+    ) {
+        super({
+            label: "Customizers",
+            contextValue: "customizers",
+            tenantId,
+            tenantName,
+            tenantDisplayName,
+            iscExtensionClient
+        });
+        this.factory = new SaaSConnectivityClientFactory(iscExtensionClient)
+    }
+
+    async getChildren(): Promise<BaseTreeItem[]> {
+        const client = await this.factory.getSaaSConnectivityClient(this.tenantId, this.tenantName)
+        const list = await client.getCustomizers()
+        const results: BaseTreeItem[] = list.map(x => new CustomizerTreeItem(
+            x.id,
+            x.name,
+            this.tenantId,
+            this.tenantName,
+            this.tenantDisplayName,
+            this.iscExtensionClient
+        ))
+        return results
+    }
+
+}
+
+export class CustomizerTreeItem extends BaseTreeItem {
     constructor(
         readonly id: string,
         label: string,
@@ -240,12 +335,30 @@ export class SourceTreeItem extends BaseTreeItem {
         super(label, tenantId, tenantName, tenantDisplayName);
     }
 
-    public get logStreamLabel(): string {
-        return `${this.tenantDisplayName}/${this.label}`;
+    contextValue = "customizer"
+}
+
+
+export class CustomizerInstanceLinkTreeItem extends BaseTreeItem {
+    constructor(
+        readonly id: string,
+        label: string,
+        public readonly instanceId: string,
+        tenantId: string,
+        tenantName: string,
+        tenantDisplayName: string,
+        iscExtensionClient: ISCExtensionClient
+    ) {
+        super(label, tenantId, tenantName, tenantDisplayName);
     }
 
-    public get logStreamPath(): string {
-        return `sources/${encodeURIComponent(this.label)}`;
-    }
-    contextValue = "source"
+    contextValue = "link"
+}
+
+export function isCustomizer(item: BaseTreeItem): item is CustomizerTreeItem {
+    return item !== null && item !== undefined && item.contextValue === "customizer";
+}
+
+export function isSource(item: BaseTreeItem): item is SourceTreeItem {
+    return item !== null && item !== undefined && item.contextValue === "source";
 }

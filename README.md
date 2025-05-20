@@ -70,6 +70,8 @@
 The SailPoint SaaS Connectivity extension makes it easy to:
 
 - View, create, update (rename), delete, upload a zip or deploy local zip for a SaaS connector
+- View, create, update (rename), delete, upload a zip or deploy local zip for a Customizer
+- Link or unlink a customizer and a source
 - View, stream logs from sources
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -92,6 +94,11 @@ The VSIX can be installed from the extension menu. Press `Ctrl`+`Shift`+`X` and 
 <!-- ROADMAP -->
 
 ## Release Notes
+
+### 0.0.5
+
+- Support for customizers
+- New command: copy ID of a connector, a source, or a customizer
 
 ### 0.0.4
 

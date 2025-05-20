@@ -27,7 +27,8 @@
     "SailPoint",
     "IdentityNow",
     "Identity Security Cloud",
-    "SaaS Connectivity"
+    "SaaS Connectivity",
+    "Customizer"
   ],
   "preview": true,
   "activationEvents": [],
@@ -126,8 +127,37 @@
         "title": "Deploy connector..."
       },
       {
-        "command": "vscode-sailpoint-saas-connectivity.connector.copy-id",
-        "title": "Copy connector ID"
+        "command": "vscode-sailpoint-saas-connectivity.copy-id",
+        "title": "Copy ID"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.customizer.create",
+        "title": "Create customizer",
+        "icon": "$(add)"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.customizer.rename",
+        "title": "Rename"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.customizer.delete",
+        "title": "Delete customizer"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.customizer.upload",
+        "title": "Upload customizer..."
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.customizer.deploy",
+        "title": "Deploy customizer..."
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.link",
+        "title": "Link customizer and source..."
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.unlink",
+        "title": "Unlink customizer and source..."
       }
     ],
     "menus": {
@@ -193,7 +223,35 @@
           "when": "never"
         },
         {
-          "command": "vscode-sailpoint-saas-connectivity.connector.copy-id",
+          "command": "vscode-sailpoint-saas-connectivity.copy-id",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.create",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.rename",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.delete",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.upload",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.deploy",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.link",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.unlink",
           "when": "never"
         }
       ],
@@ -247,7 +305,7 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.refresh",
-          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem =~ /sources|connectors/",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem =~ /sources|connectors|customizers/",
           "group": "inline@50"
         },
         {
@@ -272,8 +330,37 @@
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == connector"
         },
         {
-          "command": "vscode-sailpoint-saas-connectivity.connector.copy-id",
-          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == connector"
+          "command": "vscode-sailpoint-saas-connectivity.copy-id",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem =~ /^(source|connector|customizer)$/"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.create",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == customizers",
+          "group": "inline@1"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.rename",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == customizer"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.delete",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == customizer"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.upload",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == customizer"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.customizer.deploy",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == customizer"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.link",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem =~ /(customizer|source)$/"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.unlink",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == link"
         }
       ]
     },

@@ -32,8 +32,8 @@ export class SaaSConnectivityClientFactory {
 
         const instance = this.prepareAxiosInstance(axios.create())
         instance.defaults.headers.common = {
-			[USER_AGENT_HEADER]: USER_AGENT
-		}
+            [USER_AGENT_HEADER]: USER_AGENT
+        }
 
         return new ISCClient(apiConfig, instance)
     }
@@ -50,7 +50,7 @@ export class SaaSConnectivityClientFactory {
 
         this.prepareAxiosInstance(instance)
 
-        return new SaaSConnectivityClient(instance)
+        return new SaaSConnectivityClient(tenantId, instance)
     }
 
     /////////////////////////////////
