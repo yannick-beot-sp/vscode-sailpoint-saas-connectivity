@@ -1,18 +1,29 @@
 import * as fs from 'fs';
 import { AxiosInstance } from 'axios';
-import { Connector, CreateConnectorRequest, CreateConnectorResponse, CreateCustomizerRequest, CreateCustomizerResponse, Customizer, GetInstancesResponse, LogEvents, LogMessage, LogRequest, UpdateConnectorRequest, UpdateConnectorResponse, UpdateCustomizerRequest, UpdateCustomizerResponse, UploadConnectorResponse, UploadCustomizerResponse, } from '../models/API';
+import { Connector, CreateConnectorRequest, CreateConnectorResponse, CreateCustomizerRequest, CreateCustomizerResponse, Customizer, GetInstancesResponse, Instance, LinkRequest, LinkResponse, LogEvents, LogMessage, LogRequest, UnlinkRequest, UnlinkResponse, UpdateConnectorRequest, UpdateConnectorResponse, UpdateCustomizerRequest, UpdateCustomizerResponse, UploadConnectorResponse, UploadCustomizerResponse, } from '../models/API';
 import { compareByName, compareCaseInsensitive } from '../utils/compare';
 import { basename } from 'path';
 
+
+const sourceCache = new Map<string, Instance[]>()
+const customizerCache = new Map<string, Customizer[]>()
+
+
+export function clearCache() {
+    sourceCache.clear()
+    customizerCache.clear()
+}
+
 export class SaaSConnectivityClient {
-    constructor(private readonly axios: AxiosInstance) { }
+
+    constructor(private readonly tenantId: string, private readonly axios: AxiosInstance) { }
+
     //#region Logs
+
     public async getLogs(input: LogRequest): Promise<LogEvents> {
         const response = await this.axios.post<LogEvents>("platform-logs/query", input)
         return response.data
     }
-
-
 
     public async *getAllLogs(input: LogRequest) {
         let nextToken = undefined
@@ -80,8 +91,16 @@ export class SaaSConnectivityClient {
      * @returns 
     */
     public async getInstances(): Promise<GetInstancesResponse[]> {
-        const response = await this.axios.get<GetInstancesResponse[]>("connector-instances")
-        return response.data.sort(compareByName)
+        if (sourceCache.has(this.tenantId)) {
+            console.log("sourceCache hit!", this.tenantId);
+            return sourceCache.get(this.tenantId)!
+        } else {
+            console.log("sourceCache missed!", this.tenantId);
+            const response = await this.axios.get<GetInstancesResponse[]>("connector-instances")
+            const data = response.data.sort(compareByName)
+            sourceCache.set(this.tenantId, data)
+            return data
+        }
     }
 
     //#endregion Connectors
@@ -89,8 +108,17 @@ export class SaaSConnectivityClient {
     //#region Customizers
 
     public async getCustomizers(): Promise<Customizer[]> {
-        const response = await this.axios.get<Customizer[]>("connector-customizers")
-        return response.data.sort(compareByName)
+        if (customizerCache.has(this.tenantId)) {
+            console.log("customizerCache hit!", this.tenantId);
+
+            return customizerCache.get(this.tenantId)!
+        } else {
+            console.log("customizerCache missed!", this.tenantId);
+            const response = await this.axios.get<Customizer[]>("connector-customizers")
+            const data = response.data.sort(compareByName)
+            customizerCache.set(this.tenantId, data)
+            return data
+        }
     }
 
     public async createCustomizer(name: string) {
@@ -131,5 +159,32 @@ export class SaaSConnectivityClient {
     }
 
     //#endregion Customizers
+
+    public async link(customizerId: string, instanceId: string): Promise<LinkResponse> {
+        const request: LinkRequest = {
+            "op": "replace",
+            "path": "/connectorCustomizerId",
+            "value": customizerId,
+        }
+
+        const response = await this.axios.patch<LinkResponse>(
+            `connector-instances/${instanceId}`,
+            [request])
+
+        return response.data
+    }
+
+    public async unlink(instanceId: string): Promise<UnlinkResponse> {
+        const request: UnlinkRequest = {
+            "op": "remove",
+            "path": "/connectorCustomizerId",
+        }
+
+        const response = await this.axios.patch<UnlinkResponse>(
+            `connector-instances/${instanceId}`,
+            [request])
+
+        return response.data
+    }
 
 }

@@ -31,6 +31,8 @@ export const DELETE_CUSTOMIZER = `${COMMAND_PREFIX}.customizer.delete`;
 export const UPLOAD_CUSTOMIZER = `${COMMAND_PREFIX}.customizer.upload`;
 export const DEPLOY_CUSTOMIZER = `${COMMAND_PREFIX}.customizer.deploy`;
 
+export const LINK_CUSTOMIZER_INSTANCE = `${COMMAND_PREFIX}.link`;
+export const UNLINK_CUSTOMIZER_INSTANCE = `${COMMAND_PREFIX}.unlink`;
 /////////////////////////
 // Configuration
 /////////////////////////

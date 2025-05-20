@@ -14,6 +14,8 @@ import { DeleteCustomizerCommand } from './commands/DeleteCustomizerCommand';
 import { DeployCustomizerCommand } from './commands/DeployCustomizerCommand';
 import { RenameCustomizerCommand } from './commands/RenameCustomizerCommand';
 import { UploadCustomizerCommand } from './commands/UploadCustomizerCommand';
+import { LinkCommand } from './commands/LinkCommand';
+import { UnlinkCommand } from './commands/UnlinkCommand';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -118,6 +120,19 @@ export function activate(context: vscode.ExtensionContext) {
 			constants.DEPLOY_CUSTOMIZER,
 			deployCustomizerCommand.execute,
 			deployCustomizerCommand))
+
+	const linkCommand = new LinkCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.LINK_CUSTOMIZER_INSTANCE,
+			linkCommand.execute,
+			linkCommand))
+	const unlinkCommand = new UnlinkCommand()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.UNLINK_CUSTOMIZER_INSTANCE,
+			unlinkCommand.execute,
+			unlinkCommand))
 }
 
 // This method is called when your extension is deactivated

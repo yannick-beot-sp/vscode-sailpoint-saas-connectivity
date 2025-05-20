@@ -3,6 +3,7 @@ import * as constants from './constants';
 import { ISCExtensionClient } from './iscextension/iscextension-client';
 import { convertToBaseTreeItem } from './iscextension/convertToBaseTreeItem';
 import { BaseTreeItem, TenantFolderTreeItem, TenantTreeItem } from './models/TreeModel';
+import { clearCache } from './services/SaaSConnectivityClient';
 
 
 export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeItem>, vscode.TreeDragAndDropController<BaseTreeItem> {
@@ -113,6 +114,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
 
     refresh(node?: BaseTreeItem): void {
         console.log('> SaaSConnectivityView.refresh');
+        clearCache()
         if (node) {
             this._onDidChangeTreeData.fire([node]);
         } else {

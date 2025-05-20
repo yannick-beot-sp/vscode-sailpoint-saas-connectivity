@@ -31,7 +31,8 @@ export const onErrorResponse = async (error: AxiosError | Error) => {
             `[SaaSClient] ${method?.toUpperCase()} ${url} | Error ${status} ${message} | ${JSON.stringify(data)}`, error
         );
 
-        if ("messages" in data) {
+
+        if (typeof data === "object" && data !== undefined && "messages" in data) {
             errorMessage = data.messages[0].text
         } else {
             errorMessage = message

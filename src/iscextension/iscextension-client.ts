@@ -21,12 +21,7 @@ interface iscAPI {
     isTenantReadonly: (tenantId: string) => boolean
 }
 
-
-
-
 export class ISCExtensionClient {
-
-
 
     private readonly importedApi;
 
@@ -42,7 +37,7 @@ export class ISCExtensionClient {
         return this.importedApi.getRoots()
     }
 
-    getChildren(id: string | undefined) {
+    public getChildren(id: string | undefined) {
         return this.importedApi.getChildren(id)
     }
 
@@ -60,7 +55,7 @@ export class ISCExtensionClient {
         return await this.importedApi.getAccessToken(tenantId)
     }
 
-    isTenantReadonly(tenantId: string): boolean {
+    public isTenantReadonly(tenantId: string): boolean {
         return this.importedApi.isTenantReadonly(tenantId)
     }
 

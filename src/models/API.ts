@@ -84,6 +84,11 @@ export interface Customizer {
     imageVersion: string;
 }
 
+export interface Instance {
+    id: string;
+    name: string;
+    connectorCustomizerId: string;
+}
 
 export interface CreateCustomizerResponse extends Customizer {
 }
@@ -96,9 +101,17 @@ export interface UpdateCustomizerResponse extends Customizer { }
 
 export interface UploadCustomizerResponse extends CustomizerVersion { }
 
-export interface GetInstancesResponse {
-    id: string;
-    name: string;
-    connectorCustomizerId: string;
+
+export interface GetInstancesResponse extends Instance { }
+
+export interface LinkRequest {
+    op: string;
+    path: string;
+    value?: string;
 }
 
+export interface LinkResponse extends Instance { }
+
+export interface UnlinkRequest extends LinkRequest { }
+
+export interface UnlinkResponse extends LinkResponse { }

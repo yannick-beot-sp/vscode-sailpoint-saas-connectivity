@@ -3,11 +3,11 @@ export function compareCaseInsensitive(a: any, b: any, property: string) {
 }
 
 /**
- * Function used to compare 2 objects by the property 'name'. Useful for sorting most ISC objects
+ * Function used to compare 2 objects by the property 'name'. Useful for sorting most ISC objects without sorters
  */
 export const compareByName = (a: any, b: any) => compareCaseInsensitive(a, b, "name");
 
 /**
- * Function used to compare 2 objects by the property 'priority'. Useful for sorting QuickPickItem or TreeItem
+ * Function used to compare 2 objects by the property 'label'. Useful for sorting QuickPickItem or TreeItem
  */
 export const compareByLabel = (a: any, b: any) => compareCaseInsensitive(a, b, "label");
