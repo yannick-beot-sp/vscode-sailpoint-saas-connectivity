@@ -68,3 +68,37 @@ export interface GetInstancesResponse {
     connectorCustomizerId: string;
 }
 
+
+export interface CreateCustomizerRequest {
+    name: string
+}
+
+export interface CustomizerVersion {
+    connectorId: string
+    version: number
+}
+
+export interface Customizer {
+    id: string;
+    name: string;
+    imageVersion: string;
+}
+
+
+export interface CreateCustomizerResponse extends Customizer {
+}
+
+export interface UpdateCustomizerRequest {
+    name: string
+}
+
+export interface UpdateCustomizerResponse extends Customizer { }
+
+export interface UploadCustomizerResponse extends CustomizerVersion { }
+
+export interface GetInstancesResponse {
+    id: string;
+    name: string;
+    connectorCustomizerId: string;
+}
+

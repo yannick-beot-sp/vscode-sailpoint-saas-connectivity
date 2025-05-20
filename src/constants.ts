@@ -23,7 +23,13 @@ export const DELETE_CONNECTOR = `${COMMAND_PREFIX}.connector.delete`;
 export const UPLOAD_CONNECTOR = `${COMMAND_PREFIX}.connector.upload`;
 export const DEPLOY_CONNECTOR = `${COMMAND_PREFIX}.connector.deploy`;
 
-export const COPY_ID_CONNECTOR = `${COMMAND_PREFIX}.connector.copy-id`;
+export const COPY_ID_CONNECTOR = `${COMMAND_PREFIX}.copy-id`;
+
+export const CREATE_CUSTOMIZER = `${COMMAND_PREFIX}.customizer.create`;
+export const RENAME_CUSTOMIZER = `${COMMAND_PREFIX}.customizer.rename`;
+export const DELETE_CUSTOMIZER = `${COMMAND_PREFIX}.customizer.delete`;
+export const UPLOAD_CUSTOMIZER = `${COMMAND_PREFIX}.customizer.upload`;
+export const DEPLOY_CUSTOMIZER = `${COMMAND_PREFIX}.customizer.deploy`;
 
 /////////////////////////
 // Configuration

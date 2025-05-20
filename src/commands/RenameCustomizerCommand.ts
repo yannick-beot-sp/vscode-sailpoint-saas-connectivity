@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { ConnectorTreeItem } from "../models/TreeModel";
+import { CustomizerTreeItem } from "../models/TreeModel";
 import { SaaSConnectivityClientFactory } from "../services/SaaSConnectivityClientFactory";
 import { ISCExtensionClient } from "../iscextension/iscextension-client";
 import { isEmpty } from "../utils/stringUtils";
@@ -9,9 +9,9 @@ export async function askName(oldname: string, tenantDisplayName: string): Promi
     const result = await vscode.window.showInputBox({
         value: oldname,
         ignoreFocusOut: true,
-        placeHolder: 'alias',
-        prompt: "Enter a name for the connector",
-        title: `Rename Connector In ${tenantDisplayName}`,
+        placeHolder: 'name',
+        prompt: "Enter a name for the customizer",
+        title: `Rename Customizer In ${tenantDisplayName}`,
         validateInput: text => {
             if (isEmpty(text) || isEmpty(text.trim())) {
                 return "Name must not be empty";
@@ -21,7 +21,7 @@ export async function askName(oldname: string, tenantDisplayName: string): Promi
     return result;
 }
 
-export class RenameConnectorCommand {
+export class RenameCustomizerCommand {
 
     private readonly factory: SaaSConnectivityClientFactory
 
@@ -29,18 +29,18 @@ export class RenameConnectorCommand {
         this.factory = new SaaSConnectivityClientFactory(new ISCExtensionClient())
     }
 
-    public async execute(item: ConnectorTreeItem) {
-        const alias = await askName(item.label, item.tenantDisplayName)
-        if (alias === undefined) { return }
+    public async execute(item: CustomizerTreeItem) {
+        const name = await askName(item.label, item.tenantDisplayName)
+        if (name === undefined) { return }
 
         const client = await this.factory.getSaaSConnectivityClient(item.tenantId, item.tenantName)
         try {
-            const connector = await client.updateConnector(item.id, alias)
-            vscode.window.showInformationMessage(`Connector ${connector.alias} renamed`)
+            const customizer = await client.updateCustomizer(item.id, name)
+            vscode.window.showInformationMessage(`Customizer ${customizer.name} renamed`)
             vscode.commands.executeCommand(constants.REFRESH);
 
         } catch (error) {
-            vscode.window.showErrorMessage(`Could not rename connector: ${error}`)
+            vscode.window.showErrorMessage(`Could not rename customizer: ${error}`)
         }
     }
 

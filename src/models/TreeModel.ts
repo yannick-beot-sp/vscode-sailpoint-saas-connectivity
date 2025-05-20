@@ -65,11 +65,17 @@ export class TenantTreeItem extends BaseTreeItem {
                 this.tenantName,
                 this.tenantDisplayName,
                 this.iscExtensionClient),
+            new CustomizersTreeItem(
+                this.tenantId,
+                this.tenantName,
+                this.tenantDisplayName,
+                this.iscExtensionClient),
             new SourcesTreeItem(
                 this.tenantId,
                 this.tenantName,
                 this.tenantDisplayName,
-                this.iscExtensionClient)
+                this.iscExtensionClient),
+
         ]
         return results
     }
@@ -184,7 +190,7 @@ export class ConnectorTreeItem extends BaseTreeItem {
     ) {
         super(label, tenantId, tenantName, tenantDisplayName);
     }
-    
+
     contextValue = "connector"
 }
 
@@ -248,4 +254,57 @@ export class SourceTreeItem extends BaseTreeItem {
         return `sources/${encodeURIComponent(this.label)}`;
     }
     contextValue = "source"
+}
+
+/**
+ * Containers for customizers
+ */
+export class CustomizersTreeItem extends SubFolderTreeItem {
+    private readonly factory: SaaSConnectivityClientFactory
+    constructor(
+        tenantId: string,
+        tenantName: string,
+        tenantDisplayName: string,
+        iscExtensionClient: ISCExtensionClient
+    ) {
+        super({
+            label: "Customizers",
+            contextValue: "customizers",
+            tenantId,
+            tenantName,
+            tenantDisplayName,
+            iscExtensionClient
+        });
+        this.factory = new SaaSConnectivityClientFactory(iscExtensionClient)
+    }
+
+    async getChildren(): Promise<BaseTreeItem[]> {
+        const client = await this.factory.getSaaSConnectivityClient(this.tenantId, this.tenantName)
+        const list = await client.getCustomizers()
+        const results: BaseTreeItem[] = list.map(x => new CustomizerTreeItem(
+            x.id,
+            x.name,
+            this.tenantId,
+            this.tenantName,
+            this.tenantDisplayName,
+            this.iscExtensionClient
+        ))
+        return results
+    }
+
+}
+
+export class CustomizerTreeItem extends BaseTreeItem {
+    constructor(
+        readonly id: string,
+        label: string,
+        tenantId: string,
+        tenantName: string,
+        tenantDisplayName: string,
+        iscExtensionClient: ISCExtensionClient
+    ) {
+        super(label, tenantId, tenantName, tenantDisplayName);
+    }
+
+    contextValue = "customizer"
 }
