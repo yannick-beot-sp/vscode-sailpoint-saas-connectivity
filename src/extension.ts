@@ -16,6 +16,7 @@ import { RenameCustomizerCommand } from './commands/RenameCustomizerCommand';
 import { UploadCustomizerCommand } from './commands/UploadCustomizerCommand';
 import { LinkCommand } from './commands/LinkCommand';
 import { UnlinkCommand } from './commands/UnlinkCommand';
+import { CreateConnectorProjectCommand, CreateCustomizerProjectCommand } from './commands/CreateConnectorProjectCommand';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -133,6 +134,20 @@ export function activate(context: vscode.ExtensionContext) {
 			constants.UNLINK_CUSTOMIZER_INSTANCE,
 			unlinkCommand.execute,
 			unlinkCommand))
+
+	const createConnectorProjectCommand = new CreateConnectorProjectCommand(context.extensionUri)
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.INIT_CONNECTOR,
+			createConnectorProjectCommand.execute,
+			createConnectorProjectCommand))
+
+	const createCustomizerProjectCommand= new CreateCustomizerProjectCommand(context.extensionUri)
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.INIT_CUSTOMIZER,
+			createCustomizerProjectCommand.execute,
+			createCustomizerProjectCommand))
 }
 
 // This method is called when your extension is deactivated

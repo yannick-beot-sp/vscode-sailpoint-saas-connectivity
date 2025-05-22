@@ -4,6 +4,7 @@ out/**
 node_modules/**
 src/**
 .gitignore
+.gitmodules
 .yarnrc
 esbuild.js
 vsc-extension-quickstart.md
@@ -15,3 +16,6 @@ vsc-extension-quickstart.md
 .gitmodules
 submodules/**
 .github/**
+!submodules/sailpoint-cli/cmd/connector/static/**
+RELEASE.md
+CHANGELOG.md

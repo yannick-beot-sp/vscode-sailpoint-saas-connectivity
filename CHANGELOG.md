@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+### Added
+
+- Initialize projects for Connectors and Customizers with the commands "SaaS Connectivity: Create Connector Project..." and "SaaS Connectivity: Create Customizer Project...".
+
 ## [0.0.5] - 2025-05-20
 
 ### Added

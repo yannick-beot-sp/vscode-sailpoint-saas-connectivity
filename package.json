@@ -158,6 +158,14 @@
       {
         "command": "vscode-sailpoint-saas-connectivity.unlink",
         "title": "Unlink customizer and source..."
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.connector.init",
+        "title": "SaaS Connectivity: Create Connector Project..."
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.customizer.init",
+        "title": "SaaS Connectivity: Create Customizer Project..."
       }
     ],
     "menus": {
