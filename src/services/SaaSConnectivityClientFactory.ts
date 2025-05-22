@@ -5,9 +5,6 @@ import { SaaSConnectivityClient } from "./SaaSConnectivityClient";
 import { onErrorResponse, onRequest, onResponse } from "../utils/axiosInterceptors";
 import { ISCExtensionClient } from "../iscextension/iscextension-client";
 import { EndpointUtils } from "../iscextension/EndpointUtils";
-import { Configuration } from "sailpoint-api-client";
-import { ISCClient } from "./ISCClient";
-
 
 
 export const USER_AGENT_HEADER = "User-Agent";
@@ -20,23 +17,7 @@ export class SaaSConnectivityClientFactory {
         private readonly iscExtensionClient: ISCExtensionClient,
     ) { }
 
-    public async getISCClient(tenantId: string, tenantName: string): Promise<ISCClient> {
-
-        const accessToken = await this.iscExtensionClient.getAccessToken(tenantId)
-
-        const apiConfig = new Configuration({
-            baseurl: EndpointUtils.getBaseUrl(tenantName),
-            tokenUrl: EndpointUtils.getAccessTokenUrl(tenantName),
-            accessToken: accessToken
-        });
-
-        const instance = this.prepareAxiosInstance(axios.create())
-        instance.defaults.headers.common = {
-            [USER_AGENT_HEADER]: USER_AGENT
-        }
-
-        return new ISCClient(apiConfig, instance)
-    }
+    
 
     public async getSaaSConnectivityClient(tenantId: string, tenantName: string): Promise<SaaSConnectivityClient> {
 
