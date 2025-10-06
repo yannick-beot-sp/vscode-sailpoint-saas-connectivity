@@ -100,6 +100,7 @@ The VSIX can be installed from the extension menu. Press `Ctrl`+`Shift`+`X` and 
 
 - Initialize projects for Connectors and Customizers with the commands "SaaS Connectivity: Create Connector Project..." and "SaaS Connectivity: Create Customizer Project..."
 - Remove dependency to sailpoint-api-client
+- Update dependencies
 
 ### 0.0.5
 

@@ -6,10 +6,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+## [0.0.6] - 2025-10-06
+
 ### Added
 
 - Initialize projects for Connectors and Customizers with the commands "SaaS Connectivity: Create Connector Project..." and "SaaS Connectivity: Create Customizer Project...".
 - Remove dependency to sailpoint-api-client
+
+### Security
+
+- Update dependencies
 
 ## [0.0.5] - 2025-05-20
 
