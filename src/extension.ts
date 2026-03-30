@@ -16,7 +16,10 @@ import { RenameCustomizerCommand } from './commands/RenameCustomizerCommand';
 import { UploadCustomizerCommand } from './commands/UploadCustomizerCommand';
 import { LinkCommand } from './commands/LinkCommand';
 import { UnlinkCommand } from './commands/UnlinkCommand';
-import { CreateConnectorProjectCommand, CreateCustomizerProjectCommand } from './commands/CreateConnectorProjectCommand';
+import { CreateConnectorProjectCommand, CreateCustomizerProjectCommand } from './commands/CreateConnectorProjectCommand'
+import { ConnectorTesterPanel } from './connector-tester/ConnectorTesterPanel'
+import { BaseTreeItem } from './models/TreeModel'
+import { ISCExtensionClient } from './iscextension/iscextension-client';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -148,6 +151,25 @@ export function activate(context: vscode.ExtensionContext) {
 			constants.INIT_CUSTOMIZER,
 			createCustomizerProjectCommand.execute,
 			createCustomizerProjectCommand))
+
+	/**
+	 * Connector Tester
+	 */
+	const iscClientForTester = new ISCExtensionClient()
+	context.subscriptions.push(
+		vscode.commands.registerCommand(
+			constants.OPEN_CONNECTOR_TESTER,
+			(item: BaseTreeItem) => {
+				ConnectorTesterPanel.createOrShow(
+					context.extensionUri,
+					item.tenantId,
+					item.tenantName,
+					item.tenantDisplayName,
+					iscClientForTester,
+				)
+			}
+		)
+	)
 }
 
 // This method is called when your extension is deactivated

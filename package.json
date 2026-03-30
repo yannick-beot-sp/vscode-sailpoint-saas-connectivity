@@ -166,6 +166,11 @@
       {
         "command": "vscode-sailpoint-saas-connectivity.customizer.init",
         "title": "SaaS Connectivity: Create Customizer Project..."
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.connector-tester.open",
+        "title": "Open Connector Tester",
+        "icon": "$(test-view-icon)"
       }
     ],
     "menus": {
@@ -260,6 +265,10 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.unlink",
+          "when": "never"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector-tester.open",
           "when": "never"
         }
       ],
@@ -369,6 +378,11 @@
         {
           "command": "vscode-sailpoint-saas-connectivity.unlink",
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == link"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector-tester.open",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem =~ /^tenant/",
+          "group": "navigation"
         }
       ]
     },
@@ -394,6 +408,8 @@
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "watch:connector-tester-webview": "npm --prefix src/connector-tester/app run build-watch",
+    "build:connector-tester-webview": "npm --prefix src/connector-tester/app run build",
     "package": "npm run check-types && npm run lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
@@ -415,7 +431,7 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "axios": "^1.7.9",
+    "axios": "^1.14.0",
     "vscode-sailpoint-saas-connectivity": "file:"
   }
 }

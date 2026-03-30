@@ -35,6 +35,8 @@ export const INIT_CUSTOMIZER = `${COMMAND_PREFIX}.customizer.init`;
 
 export const LINK_CUSTOMIZER_INSTANCE = `${COMMAND_PREFIX}.link`;
 export const UNLINK_CUSTOMIZER_INSTANCE = `${COMMAND_PREFIX}.unlink`;
+
+export const OPEN_CONNECTOR_TESTER = `${COMMAND_PREFIX}.connector-tester.open`;
 /////////////////////////
 // Configuration
 /////////////////////////
