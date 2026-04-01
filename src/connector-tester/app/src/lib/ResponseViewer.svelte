@@ -41,6 +41,11 @@
   }
 
   let showHeaders = $state(false);
+  let prettyPrint = $state(true);
+
+  function rawJson(obj: any): string {
+    return JSON.stringify(obj);
+  }
 </script>
 
 <div class="response-viewer">
@@ -48,15 +53,26 @@
     <div class="row response-meta">
       <span class="status-badge {statusClass(response.status)}">{statusLabel(response.status)}</span>
       <span class="duration">{response.duration}ms</span>
-      {#if response.headers && Object.keys(response.headers).length > 0}
+      <div style="display:flex; gap:4px; margin-left: auto;">
         <button
           class="secondary"
-          style="padding: 1px 6px; font-size: 11px; margin-left: auto;"
-          onclick={() => (showHeaders = !showHeaders)}
+          class:active={prettyPrint}
+          style="padding: 1px 6px; font-size: 11px;"
+          onclick={() => (prettyPrint = !prettyPrint)}
+          title="Toggle pretty print"
         >
-          {showHeaders ? 'Hide headers' : 'Headers'}
+          Pretty
         </button>
-      {/if}
+        {#if response.headers && Object.keys(response.headers).length > 0}
+          <button
+            class="secondary"
+            style="padding: 1px 6px; font-size: 11px;"
+            onclick={() => (showHeaders = !showHeaders)}
+          >
+            {showHeaders ? 'Hide headers' : 'Headers'}
+          </button>
+        {/if}
+      </div>
     </div>
 
     {#if response.error}
@@ -71,9 +87,15 @@
       </pre>
     {/if}
 
-    <pre class="json-pre"><!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html response.body !== null && response.body !== undefined
-        ? highlight(response.body)
-        : '<span class="jl">null</span>'}</pre>
+    {#if prettyPrint}
+      <pre class="json-pre"><!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html response.body !== null && response.body !== undefined
+          ? highlight(response.body)
+          : '<span class="jl">null</span>'}</pre>
+    {:else}
+      <pre class="json-pre raw">{response.body !== null && response.body !== undefined
+          ? rawJson(response.body)
+          : 'null'}</pre>
+    {/if}
   {:else}
     <p class="empty">No response yet. Execute an action to see the result.</p>
   {/if}
@@ -91,5 +113,16 @@
 
   .response-meta {
     flex-shrink: 0;
+  }
+
+  button.active {
+    background: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border-color: var(--vscode-button-background);
+  }
+
+  .json-pre.raw {
+    white-space: pre-wrap;
+    word-break: break-all;
   }
 </style>

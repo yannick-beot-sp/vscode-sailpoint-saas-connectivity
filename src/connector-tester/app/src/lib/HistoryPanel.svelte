@@ -11,6 +11,17 @@
     onclear?: () => void;
   } = $props();
 
+  const PAGE_SIZE = 5;
+  let page = $state(0);
+
+  let pageCount = $derived(Math.max(1, Math.ceil(history.length / PAGE_SIZE)));
+  let pageItems = $derived(history.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE));
+
+  $effect(() => {
+    const maxPage = Math.max(0, Math.ceil(history.length / PAGE_SIZE) - 1);
+    if (page > maxPage) page = maxPage;
+  });
+
   function statusClass(status: number | undefined): string {
     if (!status || status === 0) return 'status-err';
     if (status >= 200 && status < 300) return 'status-2xx';
@@ -19,8 +30,34 @@
     return 'status-err';
   }
 
-  function formatTime(iso: string): string {
-    return new Date(iso).toLocaleTimeString();
+  function formatRelativeTime(iso: string): string {
+    const diff = Date.now() - new Date(iso).getTime();
+    const s = Math.floor(diff / 1000);
+    if (s < 60) return `${s}s ago`;
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    return `${d}d ago`;
+  }
+
+  function targetLabel(item: CallHistoryItem): string {
+    const t = item.request.target;
+    if (t.type === 'local') return `Local :${t.port}`;
+    const id = t.sourceId;
+    return id.length > 10 ? id.slice(0, 10) + '…' : id;
+  }
+
+  function targetTitle(item: CallHistoryItem): string {
+    const t = item.request.target;
+    if (t.type === 'local') return `Local :${t.port}`;
+    return `Remote ${t.sourceId}`;
+  }
+
+  function statusLabel(item: CallHistoryItem): string {
+    if (!item.response) return '…';
+    return item.response.status ? String(item.response.status) : 'ERR';
   }
 </script>
 
@@ -35,22 +72,112 @@
   {#if history.length === 0}
     <p class="empty">No history yet.</p>
   {:else}
-    <div class="history-list">
-      {#each history as item (item.id)}
-        <button
-          class="history-item"
-          title="{item.request.action} — {formatTime(item.timestamp)}"
-          onclick={() => onselect?.(item)}
-        >
-          <span class="action-name">{item.request.action}</span>
-          {#if item.response}
-            <span class="status-badge {statusClass(item.response.status)}" style="font-size: 10px; padding: 0 5px;">
-              {item.response.status || 'ERR'}
-            </span>
-            <span style="font-size: 10px; color: var(--vscode-descriptionForeground); flex-shrink: 0;">{item.response.duration}ms</span>
-          {/if}
-        </button>
-      {/each}
-    </div>
+    <table class="history-table">
+      <colgroup>
+        <col class="col-time" />
+        <col class="col-action" />
+        <col class="col-target" />
+        <col class="col-status" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Action</th>
+          <th>Target</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each pageItems as item (item.id)}
+          <tr
+            class="history-row"
+            onclick={() => onselect?.(item)}
+            title="{item.request.action} — {targetTitle(item)} — {formatRelativeTime(item.timestamp)}"
+          >
+            <td class="col-time">{formatRelativeTime(item.timestamp)}</td>
+            <td class="col-action">{item.request.action}</td>
+            <td class="col-target" title={targetTitle(item)}>{targetLabel(item)}</td>
+            <td class="col-status">
+              {#if item.response !== undefined}
+                <span class="status-badge {statusClass(item.response?.status)}">{statusLabel(item)}</span>
+              {:else}
+                <span class="spinner"></span>
+              {/if}
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+
+    {#if pageCount > 1}
+      <div class="history-pagination">
+        <button class="secondary" style="padding: 1px 5px; font-size: 11px;" disabled={page === 0} onclick={() => page--}>‹</button>
+        <span style="font-size: 11px; color: var(--vscode-descriptionForeground);">{page + 1} / {pageCount}</span>
+        <button class="secondary" style="padding: 1px 5px; font-size: 11px;" disabled={page >= pageCount - 1} onclick={() => page++}>›</button>
+      </div>
+    {/if}
   {/if}
 </div>
+
+<style>
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    table-layout: fixed;
+  }
+
+  .col-time   { width: 55px; }
+  .col-action { width: auto; }
+  .col-target { width: 85px; }
+  .col-status { width: 48px; }
+
+  .history-table thead th {
+    text-align: left;
+    color: var(--vscode-descriptionForeground);
+    font-weight: 600;
+    padding: 0 4px 3px;
+    border-bottom: 1px solid var(--vscode-panel-border, var(--vscode-editorGroup-border));
+    white-space: nowrap;
+  }
+
+  .history-table thead th:last-child {
+    text-align: center;
+  }
+
+  .history-row {
+    cursor: pointer;
+  }
+
+  .history-row:hover td {
+    background: var(--vscode-list-hoverBackground);
+  }
+
+  .history-row td {
+    padding: 2px 4px;
+    border-bottom: 1px solid var(--vscode-panel-border, transparent);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .col-time {
+    color: var(--vscode-descriptionForeground);
+  }
+
+  .col-target {
+    color: var(--vscode-descriptionForeground);
+  }
+
+  .col-status {
+    text-align: center;
+  }
+
+  .history-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+</style>

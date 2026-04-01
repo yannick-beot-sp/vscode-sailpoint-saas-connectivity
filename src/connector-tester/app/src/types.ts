@@ -2,18 +2,6 @@ export type Target =
   | { type: 'local'; port: number }
   | { type: 'tenant'; sourceId: string };
 
-export type LocalAction = {
-  name: string;
-  description?: string;
-  inputSchema?: object;
-};
-
-export type ConnectorAction = {
-  name: string;
-  description?: string;
-  inputSchema?: object;
-};
-
 export type ConnectorRequest = {
   target: Target;
   action: string;
@@ -33,6 +21,7 @@ export type CallHistoryItem = {
   timestamp: string;
   request: ConnectorRequest;
   response?: ConnectorResponse;
+  config?: string;
 };
 
 export type ConnectorConfig = Record<string, any>;
@@ -40,6 +29,11 @@ export type ConnectorConfig = Record<string, any>;
 export type ConnectorSource = {
   id: string;
   name: string;
+};
+
+export type EnvFile = {
+  name: string;
+  path: string;
 };
 
 export type AppState = {

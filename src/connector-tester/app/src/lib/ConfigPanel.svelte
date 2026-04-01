@@ -1,61 +1,80 @@
 <script lang="ts">
-  import type { ConnectorConfig } from '../types';
+  import type { EnvFile } from '../types';
+  import JsonEditor from './JsonEditor.svelte';
 
   let {
-    config,
+    config = $bindable('{}'),
+    configValid = $bindable(true),
+    selectedEnvFilePath = $bindable<string | null>(null),
+    envFiles = [],
+    canSync = true,
     loading = false,
     onsync,
+    onrefreshenvfiles,
   }: {
-    config: ConnectorConfig | null;
+    config: string;
+    configValid: boolean;
+    selectedEnvFilePath: string | null;
+    envFiles?: EnvFile[];
+    canSync?: boolean;
     loading?: boolean;
     onsync?: () => void;
+    onrefreshenvfiles?: () => void;
   } = $props();
-
-  function highlight(obj: any): string {
-    const json = JSON.stringify(obj, null, 2);
-    return json
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(
-        /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
-        (match) => {
-          if (/^"/.test(match)) {
-            return /:$/.test(match)
-              ? `<span class="jk">${match}</span>`
-              : `<span class="js">${match}</span>`;
-          }
-          if (/true|false/.test(match)) return `<span class="jb">${match}</span>`;
-          if (/null/.test(match)) return `<span class="jl">${match}</span>`;
-          return `<span class="jn">${match}</span>`;
-        }
-      );
-  }
 </script>
 
-<div class="panel">
+<div class="panel config-panel">
   <div class="row">
     <p class="panel-title" style="flex: 1; margin: 0;">Config</p>
-    <button class="secondary" style="padding: 1px 6px; font-size: 11px;" onclick={onsync} disabled={loading}>
+
+    <label class="env-label" for="env-select">Env:</label>
+    <select
+      id="env-select"
+      class="env-select"
+      value={selectedEnvFilePath ?? ''}
+      onchange={(e) => { selectedEnvFilePath = (e.target as HTMLSelectElement).value || null; }}
+    >
+      <option value="">— none —</option>
+      {#each envFiles as f (f.path)}
+        <option value={f.path}>{f.name}</option>
+      {/each}
+    </select>
+    <button class="secondary icon-btn" title="Refresh env files" onclick={onrefreshenvfiles}>⟳</button>
+
+    <button class="secondary" style="padding: 1px 6px; font-size: 11px;" onclick={onsync} disabled={loading || !canSync}>
       {#if loading}
         <span class="spinner"></span>
       {:else}
-        Sync
+        Sync Config ⚙️
       {/if}
     </button>
   </div>
 
-  {#if config !== null && config !== undefined}
-    <pre class="json-pre config-pre"><!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html highlight(config)}</pre>
-  {:else}
-    <p class="empty">Click Sync to load configuration.</p>
-  {/if}
+  <JsonEditor bind:value={config} bind:valid={configValid} label="Config" />
 </div>
 
 <style>
-  .config-pre {
-    flex: 1;
-    max-height: 120px;
-    margin: 0;
+  .config-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .env-label {
+    font-size: 12px;
+    color: var(--vscode-editor-foreground);
+    white-space: nowrap;
+  }
+
+  .icon-btn {
+    padding: 1px 5px;
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  .env-select {
+    font-size: 12px;
+    min-width: 80px;
+    max-width: 160px;
   }
 </style>

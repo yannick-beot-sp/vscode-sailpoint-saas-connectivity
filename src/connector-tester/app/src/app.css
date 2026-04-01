@@ -47,7 +47,7 @@ body {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
-  max-height: 180px;
+  max-height: 220px;
 }
 
 .bottom-section .panel {
@@ -209,12 +209,12 @@ label {
   min-height: 60px;
 }
 
-/* JSON syntax highlight */
-:global(.jk) { color: var(--vscode-symbolIcon-propertyForeground, #9cdcfe); }
-:global(.js) { color: #ce9178; }
-:global(.jn) { color: #b5cea8; }
-:global(.jb) { color: #569cd6; }
-:global(.jl) { color: #569cd6; }
+/* JSON syntax highlight (used by ResponseViewer and CodeMirror JsonEditor) */
+.jk { color: var(--vscode-symbolIcon-propertyForeground, #9cdcfe); }
+.js { color: #ce9178; }
+.jn { color: #b5cea8; }
+.jb { color: #569cd6; }
+.jl { color: #569cd6; }
 
 /* Validation error */
 .field-error {

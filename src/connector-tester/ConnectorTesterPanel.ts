@@ -1,8 +1,39 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 import axios from 'axios';
 import * as commands from './commands';
 import { SaaSConnectivityClientFactory } from '../services/SaaSConnectivityClientFactory';
 import { ISCExtensionClient } from '../iscextension/iscextension-client';
+import { EndpointUtils } from '../iscextension/EndpointUtils';
+import { getWorkspaceFolder } from '../utils/vsCodeHelpers';
+import { parseEnvFile } from '../utils/envUtils';
+
+const SYSTEM_CONFIG_PROPERTIES = new Set([
+    'healthCheckTimeout', 'idnProxyType', 'connectionType', 'spConnectorInstanceId',
+    'recommendationStatus', 'deleteThresholdPercentage', 'spConnectorSpecId',
+    'sourceConnected', 'slpt-source-diagnostics', 'cloudCacheUpdate',
+    'templateApplication', 'healthy', 'cloudDisplayName', 'connectorName',
+    'beforeProvisioningRule', 'since', 'status',
+]);
+
+const AVAILABLE_COMMANDS = [
+    'std:account:create',
+    'std:account:delete',
+    'std:account:disable',
+    'std:account:discover-schema',
+    'std:account:enable',
+    'std:account:list',
+    'std:account:read',
+    'std:account:unlock',
+    'std:account:update',
+    'std:change-password',
+    'std:entitlement:list',
+    'std:entitlement:read',
+    'std:source-data:discover',
+    'std:source-data:read',
+    'std:test-connection',
+]
 
 function getNonce() {
     let text = '';
@@ -61,9 +92,9 @@ export class ConnectorTesterPanel {
         private readonly tenantId: string,
         private readonly tenantName: string,
         private readonly tenantDisplayName: string,
-        iscExtensionClient: ISCExtensionClient,
+        private readonly _iscExtensionClient: ISCExtensionClient,
     ) {
-        this._clientFactory = new SaaSConnectivityClientFactory(iscExtensionClient);
+        this._clientFactory = new SaaSConnectivityClientFactory(_iscExtensionClient);
         this._panel = panel;
         this._extensionUri = extensionUri;
 
@@ -84,7 +115,7 @@ export class ConnectorTesterPanel {
                     await this._handleGetSources(requestId);
                     return;
                 case commands.GET_LOCAL_ACTIONS:
-                    await this._handleGetLocalActions(requestId, payload.port);
+                    await this._handleGetLocalActions(requestId);
                     return;
                 case commands.EXECUTE_LOCAL_ACTION:
                     await this._handleExecuteLocalAction(requestId, payload);
@@ -97,6 +128,9 @@ export class ConnectorTesterPanel {
                     return;
                 case commands.SYNC_CONFIG:
                     await this._handleSyncConfig(requestId, payload);
+                    return;
+                case commands.GET_ENV_FILES:
+                    await this._handleGetEnvFiles(requestId);
                     return;
             }
         }, null, this._disposables);
@@ -113,10 +147,31 @@ export class ConnectorTesterPanel {
         }
     }
 
-    private async _handleGetLocalActions(requestId: string, port: number) {
+    private _getConnectorSpec(): any {
+        const workspaceFolder = getWorkspaceFolder()
+        console.log({ workspaceFolder });
+        if (workspaceFolder === undefined) {
+            throw new Error("No workspace found. Try to open the folder of your connector before testing.")
+        }
+        const connectorSpecPath = path.join(workspaceFolder, "connector-spec.json")
+        console.log({ connectorSpecPath });
+        let connectorSpecContent: string
         try {
-            const response = await axios.get(`http://localhost:${port}/actions`, { timeout: 5000 });
-            this._reply(commands.GET_LOCAL_ACTIONS, requestId, response.data);
+            connectorSpecContent = fs.readFileSync(connectorSpecPath, { encoding: "utf8" })
+        } catch (error) {
+            console.error(error);
+            throw new Error("Could not read `connector-spec.json`. Try to open the folder of your connector before testing.")
+        }
+        const connectorSpecJSON = JSON.parse(connectorSpecContent)
+        return connectorSpecJSON
+    }
+
+
+
+    private async _handleGetLocalActions(requestId: string) {
+        try {
+            const connectorSpecJSON = this._getConnectorSpec()
+            this._reply(commands.GET_LOCAL_ACTIONS, requestId, connectorSpecJSON.commands);
         } catch (e: any) {
             this._replyError(commands.GET_LOCAL_ACTIONS, requestId, e.message);
         }
@@ -126,13 +181,13 @@ export class ConnectorTesterPanel {
         port: number;
         action: string;
         body: any;
+        config?: Record<string, any>;
     }) {
         const start = Date.now();
         try {
             const response = await axios.post(
                 `http://localhost:${payload.port}/execute`,
-                { action: payload.action, payload: payload.body },
-                { timeout: 30000 }
+                { action: payload.action, config: payload.config ?? {}, payload: payload.body },
             );
             this._reply(commands.EXECUTE_LOCAL_ACTION, requestId, {
                 status: response.status,
@@ -155,7 +210,7 @@ export class ConnectorTesterPanel {
 
     private async _handleGetTenantActions(requestId: string, _sourceId: string) {
         // TODO: implement tenant actions via ISC API
-        this._replyError(commands.GET_TENANT_ACTIONS, requestId, 'Tenant actions not yet implemented');
+        this._reply(commands.GET_TENANT_ACTIONS, requestId, AVAILABLE_COMMANDS);
     }
 
     private async _handleExecuteTenantAction(requestId: string, _payload: any) {
@@ -169,10 +224,84 @@ export class ConnectorTesterPanel {
         });
     }
 
-    private async _handleSyncConfig(requestId: string, _payload: any) {
-        // TODO: implement config sync
-        this._reply(commands.SYNC_CONFIG, requestId, {});
+    private async _handleGetEnvFiles(requestId: string) {
+        try {
+            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+            console.log({ workspaceFolder });
+            if (!workspaceFolder) {
+                this._reply(commands.GET_ENV_FILES, requestId, []);
+                return;
+            }
+            const pattern = new vscode.RelativePattern(workspaceFolder, '.env*');
+            const uris = await vscode.workspace.findFiles(pattern);
+            const envFiles = uris.map(uri => ({
+                name: path.basename(uri.fsPath),
+                path: uri.fsPath,
+            }));
+            this._reply(commands.GET_ENV_FILES, requestId, envFiles);
+        } catch (e: any) {
+            this._replyError(commands.GET_ENV_FILES, requestId, e.message);
+        }
     }
+
+    private async _handleSyncConfig(requestId: string, payload: {
+        target: { type: 'local' } | { type: 'tenant'; sourceId: string };
+        envFilePath?: string;
+    }) {
+        try {
+            const config: Record<string, any> = {};
+
+            if (payload.target.type === 'local') {
+                const spec = this._getConnectorSpec()
+                const keys = this._extractSourceConfigKeys(spec.sourceConfig ?? []);
+                for (const key of keys) {
+                    config[key] = spec.sourceConfigInitialValues?.[key] ?? null;
+                }
+            } else {
+                const attributes = await this._fetchSourceConnectorAttributes(payload.target.sourceId);
+                for (const [key, value] of Object.entries(attributes)) {
+                    if (!SYSTEM_CONFIG_PROPERTIES.has(key)) {
+                        config[key] = value;
+                    }
+                }
+            }
+
+            if (payload.envFilePath) {
+                const envValues = parseEnvFile(payload.envFilePath);
+                for (const key of Object.keys(config)) {
+                    if (key in envValues) {
+                        config[key] = envValues[key];
+                    }
+                }
+            }
+
+            this._reply(commands.SYNC_CONFIG, requestId, config);
+        } catch (e: any) {
+            this._replyError(commands.SYNC_CONFIG, requestId, e.message);
+        }
+    }
+
+    private _extractSourceConfigKeys(sourceConfig: any[]): string[] {
+        const keys: string[] = [];
+        const visit = (item: any) => {
+            if (item.key) { keys.push(item.key); }
+            if (Array.isArray(item.items)) { item.items.forEach(visit); }
+        };
+        sourceConfig.forEach(visit);
+        return keys;
+    }
+
+    private async _fetchSourceConnectorAttributes(sourceId: string): Promise<Record<string, any>> {
+        const accessToken = await this._iscExtensionClient.getAccessToken(this.tenantId);
+        const baseUrl = EndpointUtils.getV3Url(this.tenantName);
+        const response = await axios.get(`${baseUrl}/sources/${sourceId}`, {
+            headers: { 'Authorization': `Bearer ${accessToken}`, 'Accept': 'application/json' },
+            timeout: 10000,
+        });
+        return response.data.connectorAttributes ?? {};
+    }
+
+
 
     private _reply(command: string, requestId: string, payload: any) {
         this._panel.webview.postMessage({ command, requestId, payload });

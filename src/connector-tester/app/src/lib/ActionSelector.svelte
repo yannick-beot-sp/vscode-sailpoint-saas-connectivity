@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { ConnectorAction, LocalAction } from '../types';
 
   let {
     actions = [],
@@ -8,7 +7,7 @@
     showReload = false,
     onload,
   }: {
-    actions: (LocalAction | ConnectorAction)[];
+    actions: string[];
     selectedAction: string | null;
     loading: boolean;
     showReload?: boolean;
@@ -30,7 +29,7 @@
   let filtered = $derived(
     inputValue.trim() === ''
       ? actions
-      : actions.filter(a => a.name.toLowerCase().includes(inputValue.toLowerCase()))
+      : actions.filter(a => a.toLowerCase().includes(inputValue.toLowerCase()))
   );
 
   function handleInput(e: Event) {
@@ -117,6 +116,7 @@
       aria-expanded={open}
       aria-haspopup="listbox"
       aria-autocomplete="list"
+      aria-controls="cmd-dropdown"
     />
     <button
       class="secondary toggle-btn"
@@ -141,19 +141,19 @@
   </div>
 
   {#if open && filtered.length > 0}
-    <ul class="dropdown" role="listbox">
-      {#each filtered as action (action.name)}
+    <ul id="cmd-dropdown" class="dropdown" role="listbox">
+      {#each filtered as action (action)}
         <!-- svelte-ignore a11y_interactive_supports_focus -->
         <li
           class="option"
-          class:selected={action.name === selectedAction}
+          class:selected={action === selectedAction}
           role="option"
-          aria-selected={action.name === selectedAction}
+          aria-selected={action === selectedAction}
           tabindex="0"
-          onmousedown={(e) => { e.preventDefault(); select(action.name); }}
-          onkeydown={(e) => handleOptionKeydown(e, action.name)}
+          onmousedown={(e) => { e.preventDefault(); select(action); }}
+          onkeydown={(e) => handleOptionKeydown(e, action)}
         >
-          {action.name}
+          {action}
         </li>
       {/each}
     </ul>

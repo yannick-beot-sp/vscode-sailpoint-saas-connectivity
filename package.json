@@ -169,6 +169,10 @@
       },
       {
         "command": "vscode-sailpoint-saas-connectivity.connector-tester.open",
+        "title": "Open Connector Tester"
+      },
+      {
+        "command": "vscode-sailpoint-saas-connectivity.connector-tester.open-inline",
         "title": "Open Connector Tester",
         "icon": "$(test-view-icon)"
       }
@@ -381,8 +385,12 @@
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.connector-tester.open",
+          "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem =~ /^tenant/"
+        },
+        {
+          "command": "vscode-sailpoint-saas-connectivity.connector-tester.open-inline",
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem =~ /^tenant/",
-          "group": "navigation"
+          "group": "inline@2"
         }
       ]
     },
@@ -405,7 +413,7 @@
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
-    "watch": "npm-run-all -p watch:*",
+    "watch": "npm-run-all -p watch:**",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "watch:connector-tester-webview": "npm --prefix src/connector-tester/app run build-watch",

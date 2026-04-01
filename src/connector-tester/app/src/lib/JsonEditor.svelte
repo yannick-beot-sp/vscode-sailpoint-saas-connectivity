@@ -1,32 +1,35 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { EditorState, Prec } from '@codemirror/state';
-  import { EditorView } from '@codemirror/view';
-  import { basicSetup } from '@codemirror/basic-setup';
+  import { EditorState } from '@codemirror/state';
+  import { EditorView, lineNumbers, highlightActiveLine, keymap } from '@codemirror/view';
+  import { history, defaultKeymap, historyKeymap } from '@codemirror/commands';
   import { json } from '@codemirror/lang-json';
-  import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
+  import { HighlightStyle, syntaxHighlighting, foldGutter, codeFolding, foldKeymap } from '@codemirror/language';
   import { tags } from '@lezer/highlight';
 
   let {
     value = $bindable('{}'),
     valid = $bindable(true),
     placeholder = '{}',
+    label = 'Body',
   }: {
     value: string;
     valid: boolean;
     placeholder?: string;
+    label?: string;
   } = $props();
 
   let parseError = $state<string | null>(null);
   let container: HTMLDivElement;
   let view: EditorView | undefined;
+  let internalValue = value;
 
   const vscodeTheme = EditorView.theme({
-    '&': { height: '100%' },
     '.cm-scroller': {
       fontFamily: 'var(--vscode-editor-font-family, "Courier New", monospace)',
       fontSize: 'var(--vscode-editor-font-size, 12px)',
       lineHeight: '1.5',
+      overflow: 'auto',
     },
     '.cm-content': {
       padding: '4px 0',
@@ -52,10 +55,6 @@
     '::selection': {
       background: 'var(--vscode-editor-selectionBackground, #264f78)',
     },
-    '.cm-matchingBracket': {
-      background: 'var(--vscode-editorBracketMatch-background, rgba(0,100,0,0.3))',
-      outline: '1px solid var(--vscode-editorBracketMatch-border, #6f6f6f)',
-    },
     '.cm-foldPlaceholder': {
       background: 'transparent',
       border: '1px solid var(--vscode-panel-border, #555)',
@@ -65,14 +64,14 @@
     },
   });
 
+  // Reuse the same CSS classes already defined globally in app.css (.jk, .js, .jn, .jb)
+  // This avoids relying on CodeMirror's StyleModule injection, which can fail in VS Code webviews.
   const jsonHighlight = HighlightStyle.define([
-    { tag: tags.propertyName, color: 'var(--vscode-symbolIcon-propertyForeground, #9cdcfe)' },
-    { tag: [tags.string, tags.special(tags.string)], color: '#ce9178' },
-    { tag: tags.number, color: '#b5cea8' },
-    { tag: [tags.bool, tags.atom], color: '#569cd6' },
-    { tag: tags.null, color: '#569cd6' },
-    { tag: tags.bracket, color: 'var(--vscode-editor-foreground, #d4d4d4)' },
-    { tag: tags.punctuation, color: 'var(--vscode-editor-foreground, #d4d4d4)' },
+    { tag: tags.propertyName, class: 'jk' },
+    { tag: [tags.string, tags.special(tags.string)], class: 'js' },
+    { tag: tags.number, class: 'jn' },
+    { tag: [tags.bool, tags.atom], class: 'jb' },
+    { tag: tags.null, class: 'jb' },
   ]);
 
   function validate(raw: string) {
@@ -101,7 +100,7 @@
       value = formatted;
       validate(formatted);
     } catch {
-      // ignore - invalid JSON, can't format
+      // invalid JSON, can't format
     }
   }
 
@@ -112,13 +111,19 @@
       state: EditorState.create({
         doc: value,
         extensions: [
-          basicSetup,
+          lineNumbers(),
+          highlightActiveLine(),
+          history(),
+          foldGutter(),
+          codeFolding(),
           json(),
           vscodeTheme,
-          Prec.highest(syntaxHighlighting(jsonHighlight)),
+          syntaxHighlighting(jsonHighlight),
+          keymap.of([...defaultKeymap, ...historyKeymap, ...foldKeymap]),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               const raw = update.state.doc.toString();
+              internalValue = raw;
               value = raw;
               validate(raw);
             }
@@ -131,19 +136,16 @@
     return () => view?.destroy();
   });
 
-  // Sync value changes coming from outside (e.g. history selection)
   $effect(() => {
-    if (!view) return;
-    const current = view.state.doc.toString();
-    if (current !== value) {
-      view.dispatch({ changes: { from: 0, to: current.length, insert: value ?? '' } });
-    }
+    if (!view || value === internalValue) return;
+    internalValue = value;
+    view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: value ?? '' } });
   });
 </script>
 
 <div class="field json-editor-field">
   <div class="row" style="margin-bottom: 4px;">
-    <span class="body-label">Body</span>
+    <span class="body-label">{label}</span>
     <button class="secondary" style="padding: 1px 6px; font-size: 11px;" onclick={format} title="Format JSON">
       &#123;&nbsp;&#125;
     </button>
@@ -165,10 +167,12 @@
   .cm-wrap {
     flex: 1;
     min-height: 80px;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     background: var(--vscode-input-background);
     border: 1px solid var(--vscode-input-border, var(--vscode-editorWidget-border, transparent));
     border-radius: 2px;
+    overflow: hidden;
   }
 
   .cm-wrap:focus-within {
@@ -180,7 +184,8 @@
   }
 
   .cm-wrap :global(.cm-editor) {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
   }
 
   .body-label {

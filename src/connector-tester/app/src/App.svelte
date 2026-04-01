@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { CallHistoryItem, ConnectorConfig, ConnectorResponse, ConnectorSource, LocalAction, Target } from './types';
+  import type { CallHistoryItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from './types';
   import { ClientFactory } from './services/ClientFactory';
   import { Messenger } from './services/Messenger';
   import TargetSelector from './lib/TargetSelector.svelte';
@@ -29,16 +29,19 @@
 
   // --- State ---
   let target = $state<Target>({ type: 'local', port: 3000 });
-  let actions = $state<LocalAction[]>([]);
+  let actions = $state<string[]>([]);
   let selectedAction = $state<string | null>(null);
   let body = $state('{}');
   let bodyValid = $state(true);
   let response = $state<ConnectorResponse | null>(null);
   let history = $state<CallHistoryItem[]>([]);
-  let config = $state<ConnectorConfig | null>(null);
+  let config = $state('{}');
+  let configValid = $state(true);
 
   let sources = $state<ConnectorSource[]>([]);
   let sourcesLoading = $state(false);
+  let envFiles = $state<EnvFile[]>([]);
+  let selectedEnvFilePath = $state<string | null>(null);
 
   let loading = $state(false);
   let actionsLoading = $state(false);
@@ -46,18 +49,15 @@
   let error = $state<string | null>(null);
 
   let isRemote = $derived(target.type === 'tenant');
+  let canSync = $derived(target.type === 'local' || (target.type === 'tenant' && !!target.sourceId));
 
   // Remote commands are always available; local commands are loaded on demand
-  let displayedActions = $derived(
-    isRemote
-      ? REMOTE_COMMANDS.map(name => ({ name }))
-      : actions
-  );
+  let displayedActions = $derived(isRemote ? REMOTE_COMMANDS : actions);
 
   // --- Persistence ---
   function saveState() {
     try {
-      Messenger.setState({ target, selectedAction, body, response, history });
+      Messenger.setState({ target, selectedAction, body, response, history, config });
     } catch {
       // not in VS Code context (dev mode)
     }
@@ -72,6 +72,7 @@
         if (saved.body !== undefined) body = saved.body;
         if (saved.response !== undefined) response = saved.response;
         if (saved.history) history = saved.history;
+        if (saved.config !== undefined) config = saved.config;
       }
     } catch {
       // not in VS Code context (dev mode)
@@ -83,6 +84,8 @@
     } else {
       loadSources();
     }
+
+    client.getEnvFiles().then(files => { envFiles = files; }).catch(() => {});
   });
 
   // --- Load sources (for Remote) ---
@@ -115,7 +118,7 @@
     actionsLoading = true;
     error = null;
     try {
-      actions = await client.getLocalActions(target.port);
+      actions = await client.getLocalActions();
     } catch (e: any) {
       error = `Failed to load commands: ${e.message}`;
     } finally {
@@ -135,15 +138,24 @@
       return;
     }
 
+    let parsedConfig: Record<string, any> = {};
+    if (configValid) {
+      try {
+        parsedConfig = JSON.parse(config || '{}');
+      } catch {
+        // ignore malformed config
+      }
+    }
+
     loading = true;
     error = null;
 
     try {
       let resp: ConnectorResponse;
       if (target.type === 'local') {
-        resp = await client.executeLocalAction(target.port, selectedAction, parsedPayload);
+        resp = await client.executeLocalAction(target.port, selectedAction, parsedPayload, parsedConfig);
       } else {
-        resp = await client.executeTenantAction(target.sourceId, selectedAction, parsedPayload);
+        resp = await client.executeTenantAction(target.sourceId, selectedAction, parsedPayload, parsedConfig);
       }
 
       response = resp;
@@ -153,6 +165,7 @@
         timestamp: new Date().toISOString(),
         request: { target, action: selectedAction, payload: parsedPayload },
         response: resp,
+        config,
       };
       history = [item, ...history].slice(0, 50);
 
@@ -168,7 +181,9 @@
   async function syncConfig() {
     configLoading = true;
     try {
-      config = await client.syncConfig(target);
+      const result = await client.syncConfig($state.snapshot(target) as Target, selectedEnvFilePath ?? undefined);
+      config = JSON.stringify(result, null, 2);
+      saveState();
     } catch (e: any) {
       error = `Failed to sync config: ${e.message}`;
     } finally {
@@ -182,6 +197,7 @@
     selectedAction = item.request.action;
     body = JSON.stringify(item.request.payload, null, 2);
     response = item.response ?? null;
+    if (item.config !== undefined) config = item.config;
     saveState();
   }
 
@@ -217,7 +233,7 @@
       {#if loading}
         <span class="spinner"></span>
       {:else}
-        ▶
+        Send ▶
       {/if}
     </button>
   </div>
@@ -236,16 +252,6 @@
       <p class="panel-title">Request</p>
 
       <JsonEditor bind:value={body} bind:valid={bodyValid} />
-
-      <div class="row" style="flex-shrink: 0; justify-content: flex-end;">
-        <button class="secondary" onclick={syncConfig} disabled={configLoading} title="Sync connector config">
-          {#if configLoading}
-            <span class="spinner"></span>
-          {:else}
-            ⚙ Sync Config
-          {/if}
-        </button>
-      </div>
     </div>
 
     <!-- Response panel -->
@@ -262,6 +268,6 @@
       onselect={restoreFromHistory}
       onclear={() => { history = []; saveState(); }}
     />
-    <ConfigPanel {config} loading={configLoading} onsync={syncConfig} />
+    <ConfigPanel bind:config bind:configValid bind:selectedEnvFilePath {envFiles} {canSync} loading={configLoading} onsync={syncConfig} onrefreshenvfiles={() => { client.getEnvFiles().then(files => { envFiles = files; }).catch(() => {}); }} />
   </div>
 </div>

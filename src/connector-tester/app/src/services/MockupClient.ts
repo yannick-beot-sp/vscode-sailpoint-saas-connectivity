@@ -1,18 +1,18 @@
-import type { ConnectorAction, ConnectorConfig, ConnectorResponse, ConnectorSource, LocalAction, Target } from '../types';
+import type { ConnectorConfig, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
 import type { ConnectorClient } from './Client';
 
-const MOCK_LOCAL_ACTIONS: LocalAction[] = [
-  { name: 'std:account:list' },
-  { name: 'std:account:read' },
-  { name: 'std:entitlement:list' },
-  { name: 'std:entitlement:read' },
-  { name: 'std:test-connection' },
-  { name: 'std:account:update' },
-  { name: 'std:account:create' },
-  { name: 'std:account:delete' },
-  { name: 'std:account:disable' },
-  { name: 'std:account:enable' },
-  { name: 'std:account:unlock' },
+const MOCK_LOCAL_ACTIONS: string[] = [
+  'std:account:list',
+  'std:account:read',
+  'std:entitlement:list',
+  'std:entitlement:read',
+  'std:test-connection',
+  'std:account:update',
+  'std:account:create',
+  'std:account:delete',
+  'std:account:disable',
+  'std:account:enable',
+  'std:account:unlock',
 ];
 
 const MOCK_SOURCES: ConnectorSource[] = [
@@ -27,12 +27,20 @@ export class MockupClient implements ConnectorClient {
     return MOCK_SOURCES;
   }
 
-  async getLocalActions(_port: number): Promise<LocalAction[]> {
+  async getEnvFiles(): Promise<EnvFile[]> {
+    await delay(200);
+    return [
+      { name: '.env', path: '/workspace/.env' },
+      { name: '.env.dev', path: '/workspace/.env.dev' },
+    ];
+  }
+
+  async getLocalActions(): Promise<string[]> {
     await delay(400);
     return MOCK_LOCAL_ACTIONS;
   }
 
-  async executeLocalAction(_port: number, action: string, payload: any): Promise<ConnectorResponse> {
+  async executeLocalAction(_port: number, action: string, payload: any, _config?: ConnectorConfig): Promise<ConnectorResponse> {
     await delay(600);
     if (action === 'std:test-connection') {
       return {
@@ -56,12 +64,12 @@ export class MockupClient implements ConnectorClient {
     };
   }
 
-  async getTenantActions(_sourceId: string): Promise<ConnectorAction[]> {
+  async getTenantActions(_sourceId: string): Promise<string[]> {
     await delay(300);
-    return [];
+    return MOCK_LOCAL_ACTIONS;
   }
 
-  async executeTenantAction(_sourceId: string, action: string, payload: any): Promise<ConnectorResponse> {
+  async executeTenantAction(_sourceId: string, action: string, payload: any, _config?: ConnectorConfig): Promise<ConnectorResponse> {
     await delay(800);
     return {
       status: 200,
@@ -70,7 +78,7 @@ export class MockupClient implements ConnectorClient {
     };
   }
 
-  async syncConfig(_target: Target): Promise<ConnectorConfig> {
+  async syncConfig(_target: Target, _envFilePath?: string): Promise<ConnectorConfig> {
     await delay(500);
     return {
       clientId: 'mock-client-id',

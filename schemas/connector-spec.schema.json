@@ -42,31 +42,21 @@
             "items": {
                 "type": "string",
                 "enum": [
-                    "std:account:list",
-                    "std:account:read",
-                    "std:entitlement:list",
-                    "std:entitlement:read",
-                    "std:test-connection",
-                    "std:account:update",
                     "std:account:create",
                     "std:account:delete",
                     "std:account:disable",
+                    "std:account:discover-schema",
                     "std:account:enable",
+                    "std:account:list",
+                    "std:account:read",
                     "std:account:unlock",
-                    "std:account:discover-schema"
-                ],
-                "examples": [
-                    "std:account:list",
-                    "std:account:read",
+                    "std:account:update",
+                    "std:change-password",
                     "std:entitlement:list",
                     "std:entitlement:read",
-                    "std:test-connection",
-                    "std:account:update",
-                    "std:account:create",
-                    "std:account:delete",
-                    "std:account:disable",
-                    "std:account:enable",
-                    "std:account:unlock"
+                    "std:source-data:discover",
+                    "std:source-data:read",
+                    "std:test-connection"
                 ]
             },
             "examples": [

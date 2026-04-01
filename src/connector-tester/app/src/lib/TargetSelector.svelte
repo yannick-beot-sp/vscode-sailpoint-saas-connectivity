@@ -24,8 +24,7 @@
 
   function setRemote() {
     if (target.type !== 'tenant') {
-      const firstSourceId = sources[0]?.id ?? '';
-      target = { type: 'tenant', sourceId: firstSourceId };
+      target = { type: 'tenant', sourceId: '' };
       onchange?.();
     }
   }
@@ -44,12 +43,6 @@
     onchange?.();
   }
 
-  // When sources load, auto-select first if none selected
-  $effect(() => {
-    if (target.type === 'tenant' && sources.length > 0 && !target.sourceId) {
-      target = { type: 'tenant', sourceId: sources[0].id };
-    }
-  });
 </script>
 
 <div class="target-selector">
@@ -85,6 +78,7 @@
         {#if sources.length === 0}
           <option value="">No sources</option>
         {:else}
+          <option value="">— select a source —</option>
           {#each sources as source (source.id)}
             <option value={source.id}>{source.name}</option>
           {/each}
