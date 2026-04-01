@@ -10,6 +10,39 @@
   import HistoryPanel from './lib/HistoryPanel.svelte';
   import ConfigPanel from './lib/ConfigPanel.svelte';
 
+  // --- Resize state ---
+  let mainHeightPct = $state(65);
+  let reqWidthPct = $state(50);
+  let histWidthPct = $state(50);
+  let dragType = $state<null | 'v' | 'h-main' | 'h-bottom'>(null);
+
+  let workspaceEl: HTMLElement;
+  let mainLayoutEl: HTMLElement;
+  let bottomEl: HTMLElement;
+
+  function startDrag(e: MouseEvent, type: typeof dragType) {
+    e.preventDefault();
+    dragType = type;
+  }
+
+  function onMouseMove(e: MouseEvent) {
+    if (!dragType) return;
+    if (dragType === 'v') {
+      const rect = workspaceEl.getBoundingClientRect();
+      mainHeightPct = Math.min(85, Math.max(15, ((e.clientY - rect.top) / rect.height) * 100));
+    } else if (dragType === 'h-main') {
+      const rect = mainLayoutEl.getBoundingClientRect();
+      reqWidthPct = Math.min(85, Math.max(15, ((e.clientX - rect.left) / rect.width) * 100));
+    } else if (dragType === 'h-bottom') {
+      const rect = bottomEl.getBoundingClientRect();
+      histWidthPct = Math.min(85, Math.max(15, ((e.clientX - rect.left) / rect.width) * 100));
+    }
+  }
+
+  function stopDrag() {
+    dragType = null;
+  }
+
   const REMOTE_COMMANDS = [
     'std:account:list',
     'std:account:read',
@@ -211,9 +244,13 @@
   let canExecute = $derived(!!selectedAction && bodyValid && !loading);
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} onmousemove={onMouseMove} onmouseup={stopDrag} />
 
-<div class="container">
+<div
+  class="container"
+  class:is-dragging={dragType !== null}
+  style={dragType === 'v' ? 'cursor: row-resize' : dragType ? 'cursor: col-resize' : ''}
+>
   <!-- Single-line toolbar -->
   <div class="toolbar">
     <TargetSelector bind:target {sources} {sourcesLoading} onchange={handleTargetChange} />
@@ -245,29 +282,57 @@
     </div>
   {/if}
 
-  <!-- Main two-column layout -->
-  <div class="main-layout">
-    <!-- Request panel -->
-    <div class="panel">
-      <p class="panel-title">Request</p>
+  <div class="workspace" bind:this={workspaceEl}>
+    <!-- Main two-column layout -->
+    <div class="main-layout" bind:this={mainLayoutEl} style="flex: 0 0 {mainHeightPct}%">
+      <!-- Request panel -->
+      <div class="resize-wrapper" style="flex: 0 0 {reqWidthPct}%">
+        <div class="panel">
+          <p class="panel-title">Request</p>
+          <JsonEditor bind:value={body} bind:valid={bodyValid} />
+        </div>
+      </div>
 
-      <JsonEditor bind:value={body} bind:valid={bodyValid} />
+      <div
+        class="divider divider-h"
+        class:active={dragType === 'h-main'}
+        onmousedown={e => startDrag(e, 'h-main')}
+      ></div>
+
+      <!-- Response panel -->
+      <div class="resize-wrapper" style="flex: 1">
+        <div class="panel">
+          <p class="panel-title">Response</p>
+          <ResponseViewer {response} />
+        </div>
+      </div>
     </div>
 
-    <!-- Response panel -->
-    <div class="panel">
-      <p class="panel-title">Response</p>
-      <ResponseViewer {response} />
-    </div>
-  </div>
+    <div
+      class="divider divider-v"
+      class:active={dragType === 'v'}
+      onmousedown={e => startDrag(e, 'v')}
+    ></div>
 
-  <!-- Bottom: history + config -->
-  <div class="bottom-section">
-    <HistoryPanel
-      {history}
-      onselect={restoreFromHistory}
-      onclear={() => { history = []; saveState(); }}
-    />
-    <ConfigPanel bind:config bind:configValid bind:selectedEnvFilePath {envFiles} {canSync} loading={configLoading} onsync={syncConfig} onrefreshenvfiles={() => { client.getEnvFiles().then(files => { envFiles = files; }).catch(() => {}); }} />
+    <!-- Bottom: history + config -->
+    <div class="bottom-section" bind:this={bottomEl} style="flex: 1">
+      <div class="resize-wrapper" style="flex: 0 0 {histWidthPct}%">
+        <HistoryPanel
+          {history}
+          onselect={restoreFromHistory}
+          onclear={() => { history = []; saveState(); }}
+        />
+      </div>
+
+      <div
+        class="divider divider-h"
+        class:active={dragType === 'h-bottom'}
+        onmousedown={e => startDrag(e, 'h-bottom')}
+      ></div>
+
+      <div class="resize-wrapper" style="flex: 1">
+        <ConfigPanel bind:config bind:configValid bind:selectedEnvFilePath {envFiles} {canSync} loading={configLoading} onsync={syncConfig} onrefreshenvfiles={() => { client.getEnvFiles().then(files => { envFiles = files; }).catch(() => {}); }} />
+      </div>
+    </div>
   </div>
 </div>

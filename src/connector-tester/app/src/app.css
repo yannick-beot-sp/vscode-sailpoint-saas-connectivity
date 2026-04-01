@@ -28,31 +28,92 @@ body {
   flex-shrink: 0;
 }
 
-.main-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+.workspace {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
 }
 
-@media (max-width: 700px) {
-  .main-layout {
-    grid-template-columns: 1fr;
-    overflow-y: auto;
-  }
+.main-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .bottom-section {
   display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-  max-height: 220px;
+  flex-direction: row;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.bottom-section .panel {
-  flex: 1;
+.resize-wrapper {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.resize-wrapper > .panel {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Dividers */
+.divider {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.divider::after {
+  content: '';
+  position: absolute;
+  background: var(--vscode-panel-border, var(--vscode-editorGroup-border));
+  transition: background 0.1s, width 0.1s, height 0.1s;
+}
+
+.divider-h {
+  width: 5px;
+  cursor: col-resize;
+}
+
+.divider-h::after {
+  top: 0; bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+}
+
+.divider-h:hover::after,
+.divider-h.active::after {
+  background: var(--vscode-focusBorder);
+  width: 2px;
+}
+
+.divider-v {
+  height: 5px;
+  cursor: row-resize;
+}
+
+.divider-v::after {
+  left: 0; right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1px;
+}
+
+.divider-v:hover::after,
+.divider-v.active::after {
+  background: var(--vscode-focusBorder);
+  height: 2px;
+}
+
+.is-dragging {
+  user-select: none;
 }
 
 /* Panel */
