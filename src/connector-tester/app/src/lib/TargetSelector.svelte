@@ -24,7 +24,7 @@
 
   function setRemote() {
     if (target.type !== 'tenant') {
-      target = { type: 'tenant', sourceId: '' };
+      target = { type: 'tenant', sourceName: '' };
       onchange?.();
     }
   }
@@ -39,7 +39,7 @@
 
   function handleSourceChange(e: Event) {
     const val = (e.target as HTMLSelectElement).value;
-    target = { type: 'tenant', sourceId: val };
+    target = { type: 'tenant', sourceName: val };
     onchange?.();
   }
 
@@ -71,7 +71,7 @@
     {:else}
       <select
         class="source-select"
-        value={target.sourceId}
+        value={target.sourceName}
         onchange={handleSourceChange}
         disabled={sources.length === 0}
       >
@@ -80,7 +80,7 @@
         {:else}
           <option value="">— select a source —</option>
           {#each sources as source (source.id)}
-            <option value={source.id}>{source.name}</option>
+            <option value={source.name}>{source.name}</option>
           {/each}
         {/if}
       </select>

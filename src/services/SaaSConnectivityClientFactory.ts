@@ -5,6 +5,7 @@ import { SaaSConnectivityClient } from "./SaaSConnectivityClient";
 import { onErrorResponse, onRequest, onResponse } from "../utils/axiosInterceptors";
 import { ISCExtensionClient } from "../iscextension/iscextension-client";
 import { EndpointUtils } from "../iscextension/EndpointUtils";
+import { ISCClient } from "./ISCClient";
 
 
 export const USER_AGENT_HEADER = "User-Agent";
@@ -16,8 +17,6 @@ export class SaaSConnectivityClientFactory {
     constructor(
         private readonly iscExtensionClient: ISCExtensionClient,
     ) { }
-
-    
 
     public async getSaaSConnectivityClient(tenantId: string, tenantName: string): Promise<SaaSConnectivityClient> {
 
@@ -32,6 +31,21 @@ export class SaaSConnectivityClientFactory {
         this.prepareAxiosInstance(instance)
 
         return new SaaSConnectivityClient(tenantId, instance)
+    }
+
+        public async getISCClient(tenantId: string, tenantName: string): Promise<ISCClient> {
+
+        const baseUrl = EndpointUtils.getV2025Url(tenantName)
+        const accessToken = await this.iscExtensionClient.getAccessToken(tenantId)
+
+        const instance = axios.create({
+            baseURL: baseUrl,
+            headers: this.getDefaultHeaders(accessToken)
+        });
+
+        this.prepareAxiosInstance(instance)
+
+        return new ISCClient(tenantId, instance)
     }
 
     /////////////////////////////////

@@ -1,6 +1,6 @@
 export type Target =
   | { type: 'local'; port: number }
-  | { type: 'tenant'; sourceId: string };
+  | { type: 'tenant'; sourceName: string };
 
 export type ConnectorRequest = {
   target: Target;

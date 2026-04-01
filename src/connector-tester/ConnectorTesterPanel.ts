@@ -52,6 +52,7 @@ export class ConnectorTesterPanel {
     private readonly _panel: vscode.WebviewPanel;
     private readonly _extensionUri: vscode.Uri;
     private _disposables: vscode.Disposable[] = [];
+    private readonly _clientFactory: SaaSConnectivityClientFactory;
 
     public static createOrShow(
         extensionUri: vscode.Uri,
@@ -83,8 +84,6 @@ export class ConnectorTesterPanel {
             new ConnectorTesterPanel(panel, extensionUri, tenantId, tenantName, tenantDisplayName, iscExtensionClient)
         );
     }
-
-    private readonly _clientFactory: SaaSConnectivityClientFactory;
 
     private constructor(
         panel: vscode.WebviewPanel,
@@ -166,8 +165,6 @@ export class ConnectorTesterPanel {
         return connectorSpecJSON
     }
 
-
-
     private async _handleGetLocalActions(requestId: string) {
         try {
             const connectorSpecJSON = this._getConnectorSpec()
@@ -209,7 +206,6 @@ export class ConnectorTesterPanel {
     }
 
     private async _handleGetTenantActions(requestId: string, _sourceId: string) {
-        // TODO: implement tenant actions via ISC API
         this._reply(commands.GET_TENANT_ACTIONS, requestId, AVAILABLE_COMMANDS);
     }
 
@@ -245,7 +241,7 @@ export class ConnectorTesterPanel {
     }
 
     private async _handleSyncConfig(requestId: string, payload: {
-        target: { type: 'local' } | { type: 'tenant'; sourceId: string };
+        target: { type: 'local' } | { type: 'tenant'; sourceName: string };
         envFilePath?: string;
     }) {
         try {
@@ -258,7 +254,7 @@ export class ConnectorTesterPanel {
                     config[key] = spec.sourceConfigInitialValues?.[key] ?? null;
                 }
             } else {
-                const attributes = await this._fetchSourceConnectorAttributes(payload.target.sourceId);
+                const attributes = await this._fetchSourceConnectorAttributes(payload.target.sourceName);
                 for (const [key, value] of Object.entries(attributes)) {
                     if (!SYSTEM_CONFIG_PROPERTIES.has(key)) {
                         config[key] = value;
@@ -291,14 +287,10 @@ export class ConnectorTesterPanel {
         return keys;
     }
 
-    private async _fetchSourceConnectorAttributes(sourceId: string): Promise<Record<string, any>> {
-        const accessToken = await this._iscExtensionClient.getAccessToken(this.tenantId);
-        const baseUrl = EndpointUtils.getV3Url(this.tenantName);
-        const response = await axios.get(`${baseUrl}/sources/${sourceId}`, {
-            headers: { 'Authorization': `Bearer ${accessToken}`, 'Accept': 'application/json' },
-            timeout: 10000,
-        });
-        return response.data.connectorAttributes ?? {};
+    private async _fetchSourceConnectorAttributes(sourceName: string): Promise<Record<string, any>> {
+        const client = await this._clientFactory.getISCClient(this.tenantId, this.tenantName)
+        const source = await client.getSourceByName(sourceName)               
+        return source?.connectorAttributes ?? {}
     }
 
 

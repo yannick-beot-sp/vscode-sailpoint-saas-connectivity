@@ -45,14 +45,14 @@
   function targetLabel(item: CallHistoryItem): string {
     const t = item.request.target;
     if (t.type === 'local') return `Local :${t.port}`;
-    const id = t.sourceId;
-    return id.length > 10 ? id.slice(0, 10) + '…' : id;
+    const name = t.sourceName;
+    return name.length > 10 ? name.slice(0, 10) + '…' : name;
   }
 
   function targetTitle(item: CallHistoryItem): string {
     const t = item.request.target;
     if (t.type === 'local') return `Local :${t.port}`;
-    return `Remote ${t.sourceId}`;
+    return `Remote ${t.sourceName}`;
   }
 
   function statusLabel(item: CallHistoryItem): string {

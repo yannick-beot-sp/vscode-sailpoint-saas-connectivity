@@ -49,7 +49,7 @@
   let error = $state<string | null>(null);
 
   let isRemote = $derived(target.type === 'tenant');
-  let canSync = $derived(target.type === 'local' || (target.type === 'tenant' && !!target.sourceId));
+  let canSync = $derived(target.type === 'local' || (target.type === 'tenant' && !!target.sourceName));
 
   // Remote commands are always available; local commands are loaded on demand
   let displayedActions = $derived(isRemote ? REMOTE_COMMANDS : actions);
@@ -155,7 +155,7 @@
       if (target.type === 'local') {
         resp = await client.executeLocalAction(target.port, selectedAction, parsedPayload, parsedConfig);
       } else {
-        resp = await client.executeTenantAction(target.sourceId, selectedAction, parsedPayload, parsedConfig);
+        resp = await client.executeTenantAction(target.sourceName, selectedAction, parsedPayload, parsedConfig);
       }
 
       response = resp;

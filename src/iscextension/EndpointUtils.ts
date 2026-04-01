@@ -18,9 +18,9 @@ export class EndpointUtils {
         return baseApiUrl + '/oauth/token';
     }
 
-    public static getV3Url(tenantName: string): string {
+    public static getV2025Url(tenantName: string): string {
         const baseApiUrl = this.getBaseUrl(tenantName);
-        return baseApiUrl + '/v3';
+        return baseApiUrl + '/v2025';
     }
 
     public static getBetaUrl(tenantName: string): string {
