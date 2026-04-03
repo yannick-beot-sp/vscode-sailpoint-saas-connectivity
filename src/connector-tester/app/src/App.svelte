@@ -95,13 +95,46 @@
   let displayedActions = $derived(isRemote ? REMOTE_COMMANDS : actions);
 
   // --- Persistence ---
+  let stateRestored = false;
+
   function saveState() {
     try {
-      Messenger.setState({ target, selectedAction, body, response, history, config });
+      Messenger.setState({
+        target: $state.snapshot(target),
+        selectedAction,
+        body,
+        response: $state.snapshot(response),
+        history: $state.snapshot(history),
+        config,
+        selectedSourceName,
+        selectedEnvFilePath,
+      });
     } catch {
       // not in VS Code context (dev mode)
     }
   }
+
+  $effect(() => {
+    // All reactive reads must happen BEFORE any early return,
+    // otherwise Svelte never registers them as dependencies
+    // and the effect will not re-run when they change.
+    const snapshot = {
+      target: $state.snapshot(target),
+      selectedAction,
+      body,
+      response: $state.snapshot(response),
+      history: $state.snapshot(history),
+      config,
+      selectedSourceName,
+      selectedEnvFilePath,
+    };
+    if (!stateRestored) return;
+    try {
+      Messenger.setState(snapshot);
+    } catch {
+      // not in VS Code context (dev mode)
+    }
+  });
 
   onMount(() => {
     try {
@@ -121,10 +154,14 @@
         if (saved.response !== undefined) response = saved.response;
         if (saved.history) history = saved.history;
         if (saved.config !== undefined) config = saved.config;
+        if (saved.selectedSourceName !== undefined) selectedSourceName = saved.selectedSourceName;
+        if (saved.selectedEnvFilePath !== undefined) selectedEnvFilePath = saved.selectedEnvFilePath;
       }
     } catch {
       // not in VS Code context (dev mode)
     }
+
+    stateRestored = true;
 
     // Pre-load commands/connectors for whichever target is active
     if (target.type === 'local') {
