@@ -1,31 +1,60 @@
 <script lang="ts">
-  import type { EnvFile } from '../types';
+  import type { ConnectorSource, EnvFile } from '../types';
   import JsonEditor from './JsonEditor.svelte';
 
   let {
     config = $bindable('{}'),
     configValid = $bindable(true),
     selectedEnvFilePath = $bindable<string | null>(null),
+    selectedSourceName = $bindable<string | null>(null),
     envFiles = [],
+    sources = [],
+    sourcesLoading = false,
     canSync = true,
     loading = false,
     onsync,
     onrefreshenvfiles,
+    onrefreshsources,
   }: {
     config: string;
     configValid: boolean;
     selectedEnvFilePath: string | null;
+    selectedSourceName: string | null;
     envFiles?: EnvFile[];
+    sources?: ConnectorSource[];
+    sourcesLoading?: boolean;
     canSync?: boolean;
     loading?: boolean;
     onsync?: () => void;
     onrefreshenvfiles?: () => void;
+    onrefreshsources?: () => void;
   } = $props();
 </script>
 
 <div class="panel config-panel">
   <div class="row">
     <p class="panel-title" style="flex: 1; margin: 0;">Config</p>
+
+    <label class="env-label" for="source-select">Source:</label>
+    <select
+      id="source-select"
+      class="env-select"
+      value={selectedSourceName ?? ''}
+      onchange={(e) => { selectedSourceName = (e.target as HTMLSelectElement).value || null; }}
+      disabled={sourcesLoading || sources.length === 0}
+    >
+      {#if sourcesLoading}
+        <option value="">Loading…</option>
+      {:else if sources.length === 0}
+        <option value="">— none —</option>
+      {:else}
+        <option value="">— select source —</option>
+        {#each sources as s (s.id)}
+          <option value={s.name}>{s.name}</option>
+        {/each}
+      {/if}
+    </select>
+    <button class="secondary icon-btn" title="Refresh sources" onclick={onrefreshsources}>⟳</button>
 
     <label class="env-label" for="env-select">Env:</label>
     <select

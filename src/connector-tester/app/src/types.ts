@@ -1,6 +1,11 @@
 export type Target =
   | { type: 'local'; port: number }
-  | { type: 'tenant'; sourceName: string };
+  | { type: 'tenant'; connectorId: string; connectorAlias: string };
+
+export type ConnectorItem = {
+  id: string;
+  alias: string;
+};
 
 export type ConnectorRequest = {
   target: Target;

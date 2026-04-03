@@ -4,8 +4,8 @@ import * as path from 'path';
 import axios from 'axios';
 import * as commands from './commands';
 import { SaaSConnectivityClientFactory } from '../services/SaaSConnectivityClientFactory';
+import { clearCache } from '../services/SaaSConnectivityClient';
 import { ISCExtensionClient } from '../iscextension/iscextension-client';
-import { EndpointUtils } from '../iscextension/EndpointUtils';
 import { getWorkspaceFolder } from '../utils/vsCodeHelpers';
 import { parseEnvFile } from '../utils/envUtils';
 
@@ -113,6 +113,9 @@ export class ConnectorTesterPanel {
                 case commands.GET_SOURCES:
                     await this._handleGetSources(requestId);
                     return;
+                case commands.GET_CONNECTORS:
+                    await this._handleGetConnectors(requestId);
+                    return;
                 case commands.GET_LOCAL_ACTIONS:
                     await this._handleGetLocalActions(requestId);
                     return;
@@ -120,10 +123,12 @@ export class ConnectorTesterPanel {
                     await this._handleExecuteLocalAction(requestId, payload);
                     return;
                 case commands.GET_TENANT_ACTIONS:
-                    await this._handleGetTenantActions(requestId, payload.sourceId);
+                    await this._handleGetTenantActions(requestId, payload.connectorId);
                     return;
                 case commands.EXECUTE_TENANT_ACTION:
-                    await this._handleExecuteTenantAction(requestId, payload);
+                    await this._handleExecuteTenantAction(requestId, payload.action,
+                        payload.connectorId,
+                        payload.body, payload.config);
                     return;
                 case commands.SYNC_CONFIG:
                     await this._handleSyncConfig(requestId, payload);
@@ -138,11 +143,22 @@ export class ConnectorTesterPanel {
     private async _handleGetSources(requestId: string) {
         try {
             const client = await this._clientFactory.getSaaSConnectivityClient(this.tenantId, this.tenantName);
+            clearCache();
             const instances = await client.getInstances();
             const sources = instances.map(i => ({ id: i.id, name: i.name }));
             this._reply(commands.GET_SOURCES, requestId, sources);
         } catch (e: any) {
             this._replyError(commands.GET_SOURCES, requestId, e.message);
+        }
+    }
+
+    private async _handleGetConnectors(requestId: string) {
+        try {
+            const client = await this._clientFactory.getSaaSConnectivityClient(this.tenantId, this.tenantName);
+            const connectors = await client.getConnectors();
+            this._reply(commands.GET_CONNECTORS, requestId, connectors.map(c => ({ id: c.id, alias: c.alias })));
+        } catch (e: any) {
+            this._replyError(commands.GET_CONNECTORS, requestId, e.message);
         }
     }
 
@@ -183,8 +199,8 @@ export class ConnectorTesterPanel {
         const start = Date.now();
         try {
             const response = await axios.post(
-                `http://localhost:${payload.port}/execute`,
-                { action: payload.action, config: payload.config ?? {}, payload: payload.body },
+                `http://localhost:${payload.port}/`,
+                { type: payload.action, config: payload.config ?? {}, input: payload.body },
             );
             this._reply(commands.EXECUTE_LOCAL_ACTION, requestId, {
                 status: response.status,
@@ -209,15 +225,27 @@ export class ConnectorTesterPanel {
         this._reply(commands.GET_TENANT_ACTIONS, requestId, AVAILABLE_COMMANDS);
     }
 
-    private async _handleExecuteTenantAction(requestId: string, _payload: any) {
-        // TODO: implement tenant action execution via ISC API
+    private async _handleExecuteTenantAction(requestId: string, cmd: string, sourceId: string, input: any, config: any) {
         const start = Date.now();
-        this._reply(commands.EXECUTE_TENANT_ACTION, requestId, {
-            status: 0,
-            duration: Date.now() - start,
-            body: null,
-            error: 'Tenant action execution not yet implemented',
-        });
+        try {
+
+            const client = await this._clientFactory.getSaaSConnectivityClient(this.tenantId, this.tenantName)
+            const result = await client.invokeCommand(sourceId, cmd, input, config)
+            this._reply(commands.EXECUTE_TENANT_ACTION, requestId, {
+                status: 200,
+                duration: Date.now() - start,
+                body: result,
+            });
+        } catch (e: any) {
+            const duration = Date.now() - start;
+            const axiosResponse = (e as any).response;
+            this._reply(commands.EXECUTE_TENANT_ACTION, requestId, {
+                status: axiosResponse?.status ?? 0,
+                duration,
+                body: axiosResponse?.data ?? null,
+                error: e.message,
+            });
+        }
     }
 
     private async _handleGetEnvFiles(requestId: string) {
@@ -241,8 +269,9 @@ export class ConnectorTesterPanel {
     }
 
     private async _handleSyncConfig(requestId: string, payload: {
-        target: { type: 'local' } | { type: 'tenant'; sourceName: string };
+        target: { type: 'local' } | { type: 'tenant' };
         envFilePath?: string;
+        sourceName?: string;
     }) {
         try {
             const config: Record<string, any> = {};
@@ -254,7 +283,10 @@ export class ConnectorTesterPanel {
                     config[key] = spec.sourceConfigInitialValues?.[key] ?? null;
                 }
             } else {
-                const attributes = await this._fetchSourceConnectorAttributes(payload.target.sourceName);
+                if (!payload.sourceName) {
+                    throw new Error('No source selected. Please select a source in the Config panel before syncing.');
+                }
+                const attributes = await this._fetchSourceConnectorAttributes(payload.sourceName);
                 for (const [key, value] of Object.entries(attributes)) {
                     if (!SYSTEM_CONFIG_PROPERTIES.has(key)) {
                         config[key] = value;
@@ -289,7 +321,7 @@ export class ConnectorTesterPanel {
 
     private async _fetchSourceConnectorAttributes(sourceName: string): Promise<Record<string, any>> {
         const client = await this._clientFactory.getISCClient(this.tenantId, this.tenantName)
-        const source = await client.getSourceByName(sourceName)               
+        const source = await client.getSourceByName(sourceName)
         return source?.connectorAttributes ?? {}
     }
 

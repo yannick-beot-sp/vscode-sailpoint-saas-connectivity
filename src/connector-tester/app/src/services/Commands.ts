@@ -1,4 +1,5 @@
 export const GET_SOURCES = 'getSources';
+export const GET_CONNECTORS = 'getConnectors';
 export const GET_LOCAL_ACTIONS = 'getLocalActions';
 export const EXECUTE_LOCAL_ACTION = 'executeLocalAction';
 export const GET_TENANT_ACTIONS = 'getTenantActions';

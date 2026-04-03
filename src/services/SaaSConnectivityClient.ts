@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { AxiosInstance } from 'axios';
-import { Connector, CreateConnectorRequest, CreateConnectorResponse, CreateCustomizerRequest, CreateCustomizerResponse, Customizer, GetInstancesResponse, Instance, LinkRequest, LinkResponse, LogEvents, LogMessage, LogRequest, UnlinkRequest, UnlinkResponse, UpdateConnectorRequest, UpdateConnectorResponse, UpdateCustomizerRequest, UpdateCustomizerResponse, UploadConnectorResponse, UploadCustomizerResponse, } from '../models/API';
+import { Connector, CreateConnectorRequest, CreateConnectorResponse, CreateCustomizerRequest, CreateCustomizerResponse, Customizer, GetInstancesResponse, Instance, InvokeCommandRequest, LinkRequest, LinkResponse, LogEvents, LogMessage, LogRequest, UnlinkRequest, UnlinkResponse, UpdateConnectorRequest, UpdateConnectorResponse, UpdateCustomizerRequest, UpdateCustomizerResponse, UploadConnectorResponse, UploadCustomizerResponse, } from '../models/API';
 import { compareByName, compareCaseInsensitive } from '../utils/compare';
 import { basename } from 'path';
 
@@ -101,6 +101,24 @@ export class SaaSConnectivityClient {
             sourceCache.set(this.tenantId, data)
             return data
         }
+    }
+
+    /**
+     * To change a connector's alias
+     * @param id 
+     * @param alias 
+     * @returns 
+    */
+    public async invokeCommand(id: string, cmd: string, input:any, config:any) {
+        const body: InvokeCommandRequest = {
+            connectorRef: id,
+            input,
+            config,
+            tag: "latest",
+            type: cmd
+        }
+        const response = await this.axios.post<UpdateConnectorResponse>(`platform-connectors/${id}/invoke`, body)
+        return response.data
     }
 
     //#endregion Connectors

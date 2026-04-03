@@ -1,4 +1,4 @@
-import type { ConnectorConfig, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
+import type { ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
 import type { ConnectorClient } from './Client';
 
 const MOCK_LOCAL_ACTIONS: string[] = [
@@ -16,8 +16,13 @@ const MOCK_LOCAL_ACTIONS: string[] = [
 ];
 
 const MOCK_SOURCES: ConnectorSource[] = [
-  { id: 'source-entra-id', name: 'Entra' },
-  { id: 'source-2-id', name: 'Source 2' },
+  { id: 'instance-entra-id', name: 'Entra ID Source' },
+  { id: 'instance-2-id', name: 'LDAP Source' },
+];
+
+const MOCK_CONNECTORS: ConnectorItem[] = [
+  { id: 'connector-entra-id', alias: 'Entra ID Connector' },
+  { id: 'connector-ldap-id', alias: 'LDAP Connector' },
 ];
 
 export class MockupClient implements ConnectorClient {
@@ -25,6 +30,11 @@ export class MockupClient implements ConnectorClient {
   async getSources(): Promise<ConnectorSource[]> {
     await delay(300);
     return MOCK_SOURCES;
+  }
+
+  async getConnectors(): Promise<ConnectorItem[]> {
+    await delay(300);
+    return MOCK_CONNECTORS;
   }
 
   async getEnvFiles(): Promise<EnvFile[]> {
@@ -49,27 +59,34 @@ export class MockupClient implements ConnectorClient {
         body: { message: 'Connection successful' },
       };
     }
+    if (action === 'std:account:list' || action === 'std:entitlement:list') {
+      const items = [
+        { id: 'user1', name: 'Alice Example', email: 'alice@example.com' },
+        { id: 'user2', name: 'Bob Example', email: 'bob@example.com' },
+        { id: 'user3', name: 'Carol Example', email: 'carol@example.com' },
+      ];
+      return {
+        status: 200,
+        duration: 512,
+        body: items.map(data => JSON.stringify({ data, type: 'output' })).join('\n') + '\n',
+      };
+    }
     return {
       status: 200,
       duration: 512,
       body: {
-        items: [
-          { id: 'user1', name: 'Alice Example', email: 'alice@example.com' },
-          { id: 'user2', name: 'Bob Example', email: 'bob@example.com' },
-        ],
-        count: 2,
         requestedAction: action,
         requestedPayload: payload,
       },
     };
   }
 
-  async getTenantActions(_sourceId: string): Promise<string[]> {
+  async getTenantActions(_connectorId: string): Promise<string[]> {
     await delay(300);
     return MOCK_LOCAL_ACTIONS;
   }
 
-  async executeTenantAction(_sourceId: string, action: string, payload: any, _config?: ConnectorConfig): Promise<ConnectorResponse> {
+  async executeTenantAction(_connectorId: string, action: string, payload: any, _config?: ConnectorConfig): Promise<ConnectorResponse> {
     await delay(800);
     return {
       status: 200,
@@ -78,7 +95,7 @@ export class MockupClient implements ConnectorClient {
     };
   }
 
-  async syncConfig(_target: Target, _envFilePath?: string): Promise<ConnectorConfig> {
+  async syncConfig(_target: Target, _envFilePath?: string, _sourceName?: string): Promise<ConnectorConfig> {
     await delay(500);
     return {
       clientId: 'mock-client-id',

@@ -1,4 +1,4 @@
-import type { ConnectorConfig, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
+import type { ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
 import type { ConnectorClient } from './Client';
 import * as commands from './Commands';
 import { messageHandler } from './MessageHandler';
@@ -7,6 +7,11 @@ export class VsCodeClient implements ConnectorClient {
 
   async getSources(): Promise<ConnectorSource[]> {
     const result = await messageHandler.request<ConnectorSource[] | null>(commands.GET_SOURCES);
+    return result ?? [];
+  }
+
+  async getConnectors(): Promise<ConnectorItem[]> {
+    const result = await messageHandler.request<ConnectorItem[] | null>(commands.GET_CONNECTORS);
     return result ?? [];
   }
 
@@ -29,25 +34,25 @@ export class VsCodeClient implements ConnectorClient {
     );
   }
 
-  async getTenantActions(sourceId: string): Promise<string[]> {
+  async getTenantActions(connectorId: string): Promise<string[]> {
     const result = await messageHandler.request<string[] | null>(
       commands.GET_TENANT_ACTIONS,
-      { sourceId }
+      { connectorId }
     );
     return result ?? [];
   }
 
-  async executeTenantAction(sourceId: string, action: string, payload: any, config?: ConnectorConfig): Promise<ConnectorResponse> {
+  async executeTenantAction(connectorId: string, action: string, payload: any, config?: ConnectorConfig): Promise<ConnectorResponse> {
     return messageHandler.request<ConnectorResponse>(
       commands.EXECUTE_TENANT_ACTION,
-      { sourceId, action, body: payload, config }
+      { connectorId, action, body: payload, config }
     );
   }
 
-  async syncConfig(target: Target, envFilePath?: string): Promise<ConnectorConfig> {
+  async syncConfig(target: Target, envFilePath?: string, sourceName?: string): Promise<ConnectorConfig> {
     const result = await messageHandler.request<ConnectorConfig | null>(
       commands.SYNC_CONFIG,
-      { target, envFilePath }
+      { target, envFilePath, sourceName }
     );
     return result ?? {};
   }

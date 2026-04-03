@@ -1,16 +1,18 @@
 <script lang="ts">
-  import type { ConnectorSource, Target } from '../types';
+  import type { ConnectorItem, Target } from '../types';
 
   let {
     target = $bindable<Target>({ type: 'local', port: 3000 }),
-    sources = [],
-    sourcesLoading = false,
+    connectors = [],
+    connectorsLoading = false,
     onchange,
+    onrefresh,
   }: {
     target: Target;
-    sources: ConnectorSource[];
-    sourcesLoading: boolean;
+    connectors: ConnectorItem[];
+    connectorsLoading: boolean;
     onchange?: () => void;
+    onrefresh?: () => void;
   } = $props();
 
   let lastPort = $state(3000);
@@ -24,7 +26,7 @@
 
   function setRemote() {
     if (target.type !== 'tenant') {
-      target = { type: 'tenant', sourceName: '' };
+      target = { type: 'tenant', connectorId: '', connectorAlias: '' };
       onchange?.();
     }
   }
@@ -37,9 +39,10 @@
     }
   }
 
-  function handleSourceChange(e: Event) {
-    const val = (e.target as HTMLSelectElement).value;
-    target = { type: 'tenant', sourceName: val };
+  function handleConnectorChange(e: Event) {
+    const id = (e.target as HTMLSelectElement).value;
+    const connector = connectors.find(c => c.id === id);
+    target = { type: 'tenant', connectorId: id, connectorAlias: connector?.alias ?? '' };
     onchange?.();
   }
 
@@ -66,25 +69,26 @@
       oninput={handlePortChange}
     />
   {:else}
-    {#if sourcesLoading}
+    {#if connectorsLoading}
       <span class="spinner"></span>
     {:else}
       <select
-        class="source-select"
-        value={target.sourceName}
-        onchange={handleSourceChange}
-        disabled={sources.length === 0}
+        class="connector-select"
+        value={target.connectorId}
+        onchange={handleConnectorChange}
+        disabled={connectors.length === 0}
       >
-        {#if sources.length === 0}
-          <option value="">No sources</option>
+        {#if connectors.length === 0}
+          <option value="">No connectors</option>
         {:else}
-          <option value="">— select a source —</option>
-          {#each sources as source (source.id)}
-            <option value={source.name}>{source.name}</option>
+          <option value="">— select a connector —</option>
+          {#each connectors as connector (connector.id)}
+            <option value={connector.id}>{connector.alias}</option>
           {/each}
         {/if}
       </select>
     {/if}
+    <button class="secondary icon-btn" title="Refresh connectors" onclick={onrefresh}>⟳</button>
   {/if}
 </div>
 
@@ -119,8 +123,14 @@
     width: 70px !important;
   }
 
-  .source-select {
+  .connector-select {
     min-width: 120px;
     max-width: 220px;
+  }
+
+  .icon-btn {
+    padding: 1px 5px;
+    font-size: 13px;
+    line-height: 1;
   }
 </style>

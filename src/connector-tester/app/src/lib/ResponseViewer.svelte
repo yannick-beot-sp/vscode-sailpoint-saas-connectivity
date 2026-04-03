@@ -46,6 +46,24 @@
   function rawJson(obj: any): string {
     return JSON.stringify(obj);
   }
+
+  /**
+   * Parse Newline-Delimited JSON as returned for list account
+   * @param str
+   */
+  function parseNdjson(str: string): any[] | null {
+    const lines = str.split('\n').filter(l => l.trim());
+    if (lines.length < 2) return null;
+    try {
+      return lines.map(l => JSON.parse(l));
+    } catch {
+      return null;
+    }
+  }
+
+  let parsedNdjson = $derived(
+    typeof response?.body === 'string' ? parseNdjson(response.body) : null
+  );
 </script>
 
 <div class="response-viewer">
@@ -88,9 +106,13 @@
     {/if}
 
     {#if prettyPrint}
-      <pre class="json-pre"><!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html response.body !== null && response.body !== undefined
-          ? highlight(response.body)
-          : '<span class="jl">null</span>'}</pre>
+      {#if parsedNdjson}
+        <pre class="json-pre">{#each parsedNdjson as item, i}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html highlight(item)}{i < parsedNdjson.length - 1 ? '\n' : ''}{/each}</pre>
+      {:else}
+        <pre class="json-pre"><!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html response.body !== null && response.body !== undefined
+            ? highlight(response.body)
+            : '<span class="jl">null</span>'}</pre>
+      {/if}
     {:else}
       <pre class="json-pre raw">{response.body !== null && response.body !== undefined
           ? rawJson(response.body)

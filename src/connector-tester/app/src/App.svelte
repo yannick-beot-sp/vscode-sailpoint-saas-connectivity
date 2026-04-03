@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { CallHistoryItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from './types';
+  import type { CallHistoryItem, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from './types';
   import { ClientFactory } from './services/ClientFactory';
   import { Messenger } from './services/Messenger';
   import TargetSelector from './lib/TargetSelector.svelte';
@@ -71,8 +71,15 @@
   let config = $state('{}');
   let configValid = $state(true);
 
-  let sources = $state<ConnectorSource[]>([]);
-  let sourcesLoading = $state(false);
+  // Connectors list (for TargetSelector remote)
+  let connectors = $state<ConnectorItem[]>([]);
+  let connectorsLoading = $state(false);
+
+  // Instance sources (for ConfigPanel Sync Config)
+  let instanceSources = $state<ConnectorSource[]>([]);
+  let instanceSourcesLoading = $state(false);
+  let selectedSourceName = $state<string | null>(null);
+
   let envFiles = $state<EnvFile[]>([]);
   let selectedEnvFilePath = $state<string | null>(null);
 
@@ -82,7 +89,7 @@
   let error = $state<string | null>(null);
 
   let isRemote = $derived(target.type === 'tenant');
-  let canSync = $derived(target.type === 'local' || (target.type === 'tenant' && !!target.sourceName));
+  let canSync = $derived(target.type === 'local' || !!selectedSourceName);
 
   // Remote commands are always available; local commands are loaded on demand
   let displayedActions = $derived(isRemote ? REMOTE_COMMANDS : actions);
@@ -100,7 +107,15 @@
     try {
       const saved = Messenger.getState() as any;
       if (saved) {
-        if (saved.target) target = saved.target;
+        if (saved.target) {
+          // Migrate old saved state that used sourceId/sourceName
+          const t = saved.target;
+          if (t.type === 'tenant' && 'sourceId' in t) {
+            target = { type: 'tenant', connectorId: '', connectorAlias: '' };
+          } else {
+            target = t;
+          }
+        }
         if (saved.selectedAction !== undefined) selectedAction = saved.selectedAction;
         if (saved.body !== undefined) body = saved.body;
         if (saved.response !== undefined) response = saved.response;
@@ -111,25 +126,38 @@
       // not in VS Code context (dev mode)
     }
 
-    // Pre-load commands for whichever target is active
+    // Pre-load commands/connectors for whichever target is active
     if (target.type === 'local') {
       loadActions();
     } else {
-      loadSources();
+      loadConnectors();
     }
 
     client.getEnvFiles().then(files => { envFiles = files; }).catch(() => {});
+    loadInstanceSources();
   });
 
-  // --- Load sources (for Remote) ---
-  async function loadSources() {
-    sourcesLoading = true;
+  // --- Load connectors (for TargetSelector remote) ---
+  async function loadConnectors() {
+    connectorsLoading = true;
     try {
-      sources = await client.getSources();
+      connectors = await client.getConnectors();
+    } catch (e: any) {
+      error = `Failed to load connectors: ${e.message}`;
+    } finally {
+      connectorsLoading = false;
+    }
+  }
+
+  // --- Load instance sources (for ConfigPanel Sync Config) ---
+  async function loadInstanceSources() {
+    instanceSourcesLoading = true;
+    try {
+      instanceSources = await client.getSources();
     } catch (e: any) {
       error = `Failed to load sources: ${e.message}`;
     } finally {
-      sourcesLoading = false;
+      instanceSourcesLoading = false;
     }
   }
 
@@ -139,9 +167,10 @@
     actions = [];
     error = null;
     if (target.type === 'local') {
+      selectedSourceName = null;
       loadActions();
-    } else if (sources.length === 0) {
-      loadSources();
+    } else if (connectors.length === 0) {
+      loadConnectors();
     }
   }
 
@@ -188,7 +217,7 @@
       if (target.type === 'local') {
         resp = await client.executeLocalAction(target.port, selectedAction, parsedPayload, parsedConfig);
       } else {
-        resp = await client.executeTenantAction(target.sourceName, selectedAction, parsedPayload, parsedConfig);
+        resp = await client.executeTenantAction(target.connectorId, selectedAction, parsedPayload, parsedConfig);
       }
 
       response = resp;
@@ -214,7 +243,11 @@
   async function syncConfig() {
     configLoading = true;
     try {
-      const result = await client.syncConfig($state.snapshot(target) as Target, selectedEnvFilePath ?? undefined);
+      const result = await client.syncConfig(
+        $state.snapshot(target) as Target,
+        selectedEnvFilePath ?? undefined,
+        selectedSourceName ?? undefined,
+      );
       config = JSON.stringify(result, null, 2);
       saveState();
     } catch (e: any) {
@@ -253,7 +286,13 @@
 >
   <!-- Single-line toolbar -->
   <div class="toolbar">
-    <TargetSelector bind:target {sources} {sourcesLoading} onchange={handleTargetChange} />
+    <TargetSelector
+      bind:target
+      {connectors}
+      {connectorsLoading}
+      onchange={handleTargetChange}
+      onrefresh={loadConnectors}
+    />
     <ActionSelector
       actions={displayedActions}
       bind:selectedAction
@@ -331,7 +370,20 @@
       ></div>
 
       <div class="resize-wrapper" style="flex: 1">
-        <ConfigPanel bind:config bind:configValid bind:selectedEnvFilePath {envFiles} {canSync} loading={configLoading} onsync={syncConfig} onrefreshenvfiles={() => { client.getEnvFiles().then(files => { envFiles = files; }).catch(() => {}); }} />
+        <ConfigPanel
+          bind:config
+          bind:configValid
+          bind:selectedEnvFilePath
+          bind:selectedSourceName
+          {envFiles}
+          sources={instanceSources}
+          sourcesLoading={instanceSourcesLoading}
+          {canSync}
+          loading={configLoading}
+          onsync={syncConfig}
+          onrefreshenvfiles={() => { client.getEnvFiles().then(files => { envFiles = files; }).catch(() => {}); }}
+          onrefreshsources={loadInstanceSources}
+        />
       </div>
     </div>
   </div>

@@ -115,3 +115,11 @@ export interface LinkResponse extends Instance { }
 export interface UnlinkRequest extends LinkRequest { }
 
 export interface UnlinkResponse extends LinkResponse { }
+
+export interface InvokeCommandRequest {
+    connectorRef: string;
+    type: string;
+    config: any;
+    input?: any;
+    tag: string;
+ }

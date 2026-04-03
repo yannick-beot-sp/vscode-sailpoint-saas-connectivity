@@ -16,36 +16,54 @@
 
   let inputValue = $state(selectedAction ?? '');
   let open = $state(false);
+  let userIsTyping = $state(false);
+  let suppressNextOpen = $state(false);
   let inputEl = $state<HTMLInputElement | null>(null);
   let wrapperEl = $state<HTMLDivElement | null>(null);
 
-  // Sync inputValue when selectedAction changes externally (history restore)
+  // Sync inputValue when selectedAction changes externally (history restore).
+  // If the parent resets selectedAction to null (e.g. target switch), keep the
+  // current inputValue and restore selectedAction from it so the selection is preserved.
   $effect(() => {
-    if (selectedAction !== (inputValue || null)) {
-      inputValue = selectedAction ?? '';
+    if (selectedAction !== null && selectedAction !== inputValue) {
+      inputValue = selectedAction;
+    } else if (selectedAction === null && inputValue.trim()) {
+      selectedAction = inputValue.trim();
     }
   });
 
-  let filtered = $derived(
-    inputValue.trim() === ''
-      ? actions
-      : actions.filter(a => a.toLowerCase().includes(inputValue.toLowerCase()))
+  // Show all actions when browsing via button/focus; filter only when typing.
+  let displayedActions = $derived(
+    userIsTyping && inputValue.trim() !== ''
+      ? actions.filter(a => a.toLowerCase().includes(inputValue.toLowerCase()))
+      : actions
   );
 
   function handleInput(e: Event) {
+    userIsTyping = true;
     inputValue = (e.target as HTMLInputElement).value;
     selectedAction = inputValue.trim() || null;
     open = true;
   }
 
-  function handleFocus() {
+  function handleFocus(e: FocusEvent) {
+    if (suppressNextOpen) {
+      suppressNextOpen = false;
+      return;
+    }
+    // Only reset typing/filter mode if focus comes from outside the component
+    if (!wrapperEl?.contains(e.relatedTarget as Node | null)) {
+      userIsTyping = false;
+    }
     open = true;
   }
 
   function select(name: string) {
     inputValue = name;
     selectedAction = name;
+    userIsTyping = false;
     open = false;
+    suppressNextOpen = true;
     inputEl?.focus();
   }
 
@@ -121,7 +139,7 @@
     <button
       class="secondary toggle-btn"
       tabindex="-1"
-      onclick={() => { open = !open; inputEl?.focus(); }}
+      onclick={() => { userIsTyping = false; open = !open; inputEl?.focus(); }}
       title="Show commands"
     >▾</button>
     {#if showReload}
@@ -140,9 +158,9 @@
     {/if}
   </div>
 
-  {#if open && filtered.length > 0}
+  {#if open && displayedActions.length > 0}
     <ul id="cmd-dropdown" class="dropdown" role="listbox">
-      {#each filtered as action (action)}
+      {#each displayedActions as action (action)}
         <!-- svelte-ignore a11y_interactive_supports_focus -->
         <li
           class="option"

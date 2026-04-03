@@ -1,14 +1,15 @@
-import type { ConnectorConfig, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
+import type { ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
 
 export interface ConnectorClient {
   getSources(): Promise<ConnectorSource[]>;
+  getConnectors(): Promise<ConnectorItem[]>;
   getEnvFiles(): Promise<EnvFile[]>;
 
   getLocalActions(): Promise<string[]>;
   executeLocalAction(port: number, action: string, payload: any, config?: ConnectorConfig): Promise<ConnectorResponse>;
 
-  getTenantActions(sourceId: string): Promise<string[]>;
-  executeTenantAction(sourceId: string, action: string, payload: any, config?: ConnectorConfig): Promise<ConnectorResponse>;
+  getTenantActions(connectorId: string): Promise<string[]>;
+  executeTenantAction(connectorId: string, action: string, payload: any, config?: ConnectorConfig): Promise<ConnectorResponse>;
 
-  syncConfig(target: Target, envFilePath?: string): Promise<ConnectorConfig>;
+  syncConfig(target: Target, envFilePath?: string, sourceName?: string): Promise<ConnectorConfig>;
 }
