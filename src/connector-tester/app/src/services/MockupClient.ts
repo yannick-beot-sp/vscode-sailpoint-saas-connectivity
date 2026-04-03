@@ -1,4 +1,4 @@
-import type { ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
+import type { CallHistoryItem, ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
 import type { ConnectorClient } from './Client';
 
 const MOCK_LOCAL_ACTIONS: string[] = [
@@ -102,6 +102,16 @@ export class MockupClient implements ConnectorClient {
       baseUrl: 'https://mock.example.com',
       timeout: 30000,
     };
+  }
+
+  async loadHistory(): Promise<CallHistoryItem[]> {
+    return [];
+  }
+
+  async saveHistory(_items: CallHistoryItem[]): Promise<void> {}
+
+  async deleteHistoryItem(_id: string): Promise<CallHistoryItem[]> {
+    return [];
   }
 }
 

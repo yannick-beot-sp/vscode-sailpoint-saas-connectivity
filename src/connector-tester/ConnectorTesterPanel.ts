@@ -9,6 +9,14 @@ import { ISCExtensionClient } from '../iscextension/iscextension-client';
 import { getWorkspaceFolder } from '../utils/vsCodeHelpers';
 import { parseEnvFile } from '../utils/envUtils';
 
+interface CallHistoryItem {
+    id: string;
+    timestamp: string;
+    request: { target: any; action: string; payload: any };
+    response?: { status: number; duration: number; headers?: Record<string, string>; body: any; error?: string };
+    config?: string;
+}
+
 const SYSTEM_CONFIG_PROPERTIES = new Set([
     'healthCheckTimeout', 'idnProxyType', 'connectionType', 'spConnectorInstanceId',
     'recommendationStatus', 'deleteThresholdPercentage', 'spConnectorSpecId',
@@ -50,12 +58,11 @@ export class ConnectorTesterPanel {
     public static readonly viewType = 'connectorTesterView';
 
     private readonly _panel: vscode.WebviewPanel;
-    private readonly _extensionUri: vscode.Uri;
     private _disposables: vscode.Disposable[] = [];
     private readonly _clientFactory: SaaSConnectivityClientFactory;
 
     public static createOrShow(
-        extensionUri: vscode.Uri,
+        context: vscode.ExtensionContext,
         tenantId: string,
         tenantName: string,
         tenantDisplayName: string,
@@ -76,18 +83,18 @@ export class ConnectorTesterPanel {
             column || vscode.ViewColumn.One,
             {
                 enableScripts: true,
-                localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'connector-tester', 'assets')]
+                localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'connector-tester', 'assets')]
             }
         );
 
         ConnectorTesterPanel.currentPanels.set(tenantId,
-            new ConnectorTesterPanel(panel, extensionUri, tenantId, tenantName, tenantDisplayName, iscExtensionClient)
+            new ConnectorTesterPanel(panel, context, tenantId, tenantName, tenantDisplayName, iscExtensionClient)
         );
     }
 
     private constructor(
         panel: vscode.WebviewPanel,
-        extensionUri: vscode.Uri,
+        private readonly _context: vscode.ExtensionContext,
         private readonly tenantId: string,
         private readonly tenantName: string,
         private readonly tenantDisplayName: string,
@@ -95,7 +102,6 @@ export class ConnectorTesterPanel {
     ) {
         this._clientFactory = new SaaSConnectivityClientFactory(_iscExtensionClient);
         this._panel = panel;
-        this._extensionUri = extensionUri;
 
         this._update();
 
@@ -135,6 +141,15 @@ export class ConnectorTesterPanel {
                     return;
                 case commands.GET_ENV_FILES:
                     await this._handleGetEnvFiles(requestId);
+                    return;
+                case commands.LOAD_HISTORY:
+                    await this._handleLoadHistory(requestId);
+                    return;
+                case commands.SAVE_HISTORY:
+                    await this._handleSaveHistory(requestId, payload);
+                    return;
+                case commands.DELETE_HISTORY_ITEM:
+                    await this._handleDeleteHistoryItem(requestId, payload);
                     return;
             }
         }, null, this._disposables);
@@ -268,6 +283,35 @@ export class ConnectorTesterPanel {
         }
     }
 
+    private get _historyKey(): string {
+        return `connectorTesterHistory_${this.tenantId}`;
+    }
+
+    private async _handleLoadHistory(requestId: string): Promise<void> {
+        const items = this._context.workspaceState.get<CallHistoryItem[]>(this._historyKey, []);
+        this._reply(commands.LOAD_HISTORY, requestId, items);
+    }
+
+    private async _handleSaveHistory(requestId: string, payload: { items: CallHistoryItem[] }): Promise<void> {
+        try {
+            await this._context.workspaceState.update(this._historyKey, payload.items.slice(0, 50));
+            this._reply(commands.SAVE_HISTORY, requestId, { ok: true });
+        } catch (e: any) {
+            this._replyError(commands.SAVE_HISTORY, requestId, e.message);
+        }
+    }
+
+    private async _handleDeleteHistoryItem(requestId: string, payload: { id: string }): Promise<void> {
+        try {
+            const current = this._context.workspaceState.get<CallHistoryItem[]>(this._historyKey, []);
+            const updated = current.filter(item => item.id !== payload.id);
+            await this._context.workspaceState.update(this._historyKey, updated);
+            this._reply(commands.DELETE_HISTORY_ITEM, requestId, updated);
+        } catch (e: any) {
+            this._replyError(commands.DELETE_HISTORY_ITEM, requestId, e.message);
+        }
+    }
+
     private async _handleSyncConfig(requestId: string, payload: {
         target: { type: 'local' } | { type: 'tenant' };
         envFilePath?: string;
@@ -351,10 +395,10 @@ export class ConnectorTesterPanel {
 
     private _getHtmlForWebview(webview: vscode.Webview) {
         const scriptUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this._extensionUri, 'connector-tester', 'assets', 'index.js')
+            vscode.Uri.joinPath(this._context.extensionUri, 'connector-tester', 'assets', 'index.js')
         );
         const stylesUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(this._extensionUri, 'connector-tester', 'assets', 'index.css')
+            vscode.Uri.joinPath(this._context.extensionUri, 'connector-tester', 'assets', 'index.css')
         );
         const nonce = getNonce();
 

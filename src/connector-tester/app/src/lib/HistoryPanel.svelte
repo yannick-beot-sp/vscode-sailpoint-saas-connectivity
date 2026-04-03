@@ -5,10 +5,12 @@
     history = [],
     onselect,
     onclear,
+    ondeleteitem,
   }: {
     history: CallHistoryItem[];
     onselect?: (item: CallHistoryItem) => void;
     onclear?: () => void;
+    ondeleteitem?: (id: string) => void;
   } = $props();
 
   const PAGE_SIZE = 5;
@@ -45,14 +47,14 @@
   function targetLabel(item: CallHistoryItem): string {
     const t = item.request.target;
     if (t.type === 'local') return `Local :${t.port}`;
-    const name = t.sourceName;
+    const name = t.connectorAlias;
     return name.length > 10 ? name.slice(0, 10) + '…' : name;
   }
 
   function targetTitle(item: CallHistoryItem): string {
     const t = item.request.target;
     if (t.type === 'local') return `Local :${t.port}`;
-    return `Remote ${t.sourceName}`;
+    return `Remote ${t.connectorAlias}`;
   }
 
   function statusLabel(item: CallHistoryItem): string {
@@ -78,6 +80,7 @@
         <col class="col-action" />
         <col class="col-target" />
         <col class="col-status" />
+        <col class="col-delete" />
       </colgroup>
       <thead>
         <tr>
@@ -85,6 +88,7 @@
           <th>Action</th>
           <th>Target</th>
           <th>Status</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -103,6 +107,9 @@
               {:else}
                 <span class="spinner"></span>
               {/if}
+            </td>
+            <td class="col-delete">
+              <button class="delete-btn" onclick={(e) => { e.stopPropagation(); ondeleteitem?.(item.id); }}>✕</button>
             </td>
           </tr>
         {/each}
@@ -131,6 +138,22 @@
   .col-action { width: auto; }
   .col-target { width: 85px; }
   .col-status { width: 48px; }
+  .col-delete { width: 24px; }
+
+  .delete-btn {
+    visibility: hidden;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--vscode-descriptionForeground);
+    padding: 0 2px;
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .history-row:hover .delete-btn {
+    visibility: visible;
+  }
 
   .history-table thead th {
     text-align: left;

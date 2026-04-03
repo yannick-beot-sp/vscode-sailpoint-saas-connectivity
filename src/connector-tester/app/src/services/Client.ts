@@ -1,4 +1,4 @@
-import type { ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
+import type { CallHistoryItem, ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
 
 export interface ConnectorClient {
   getSources(): Promise<ConnectorSource[]>;
@@ -12,4 +12,8 @@ export interface ConnectorClient {
   executeTenantAction(connectorId: string, action: string, payload: any, config?: ConnectorConfig): Promise<ConnectorResponse>;
 
   syncConfig(target: Target, envFilePath?: string, sourceName?: string): Promise<ConnectorConfig>;
+
+  loadHistory(): Promise<CallHistoryItem[]>;
+  saveHistory(items: CallHistoryItem[]): Promise<void>;
+  deleteHistoryItem(id: string): Promise<CallHistoryItem[]>;
 }

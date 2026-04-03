@@ -158,7 +158,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const iscClientForTester = new ISCExtensionClient()
 	const openConnectorTester = (item: BaseTreeItem) => {
 		ConnectorTesterPanel.createOrShow(
-			context.extensionUri,
+			context,
 			item.tenantId,
 			item.tenantName,
 			item.tenantDisplayName,

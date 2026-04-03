@@ -1,4 +1,4 @@
-import type { ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
+import type { CallHistoryItem, ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
 import type { ConnectorClient } from './Client';
 import * as commands from './Commands';
 import { messageHandler } from './MessageHandler';
@@ -55,5 +55,19 @@ export class VsCodeClient implements ConnectorClient {
       { target, envFilePath, sourceName }
     );
     return result ?? {};
+  }
+
+  async loadHistory(): Promise<CallHistoryItem[]> {
+    const result = await messageHandler.request<CallHistoryItem[] | null>(commands.LOAD_HISTORY);
+    return result ?? [];
+  }
+
+  async saveHistory(items: CallHistoryItem[]): Promise<void> {
+    await messageHandler.request<{ ok: boolean }>(commands.SAVE_HISTORY, { items });
+  }
+
+  async deleteHistoryItem(id: string): Promise<CallHistoryItem[]> {
+    const result = await messageHandler.request<CallHistoryItem[] | null>(commands.DELETE_HISTORY_ITEM, { id });
+    return result ?? [];
   }
 }

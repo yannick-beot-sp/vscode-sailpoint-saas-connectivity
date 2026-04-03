@@ -6,3 +6,6 @@ export const GET_TENANT_ACTIONS = 'getTenantActions';
 export const EXECUTE_TENANT_ACTION = 'executeTenantAction';
 export const SYNC_CONFIG = 'syncConfig';
 export const GET_ENV_FILES = 'getEnvFiles';
+export const LOAD_HISTORY = 'loadHistory';
+export const SAVE_HISTORY = 'saveHistory';
+export const DELETE_HISTORY_ITEM = 'deleteHistoryItem';

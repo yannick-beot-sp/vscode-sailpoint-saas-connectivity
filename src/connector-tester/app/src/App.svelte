@@ -104,7 +104,6 @@
         selectedAction,
         body,
         response: $state.snapshot(response),
-        history: $state.snapshot(history),
         config,
         selectedSourceName,
         selectedEnvFilePath,
@@ -123,7 +122,6 @@
       selectedAction,
       body,
       response: $state.snapshot(response),
-      history: $state.snapshot(history),
       config,
       selectedSourceName,
       selectedEnvFilePath,
@@ -136,7 +134,8 @@
     }
   });
 
-  onMount(() => {
+  onMount(async () => {
+    let savedHistory: CallHistoryItem[] | undefined;
     try {
       const saved = Messenger.getState() as any;
       if (saved) {
@@ -152,10 +151,24 @@
         if (saved.selectedAction !== undefined) selectedAction = saved.selectedAction;
         if (saved.body !== undefined) body = saved.body;
         if (saved.response !== undefined) response = saved.response;
-        if (saved.history) history = saved.history;
         if (saved.config !== undefined) config = saved.config;
         if (saved.selectedSourceName !== undefined) selectedSourceName = saved.selectedSourceName;
         if (saved.selectedEnvFilePath !== undefined) selectedEnvFilePath = saved.selectedEnvFilePath;
+        savedHistory = saved.history;
+      }
+    } catch {
+      // not in VS Code context (dev mode)
+    }
+
+    // Load history from workspaceState (persisted across sessions)
+    try {
+      const persistedHistory = await client.loadHistory();
+      if (persistedHistory.length === 0 && savedHistory && savedHistory.length > 0) {
+        // One-time migration from old webview state
+        history = savedHistory;
+        await client.saveHistory(savedHistory);
+      } else {
+        history = persistedHistory;
       }
     } catch {
       // not in VS Code context (dev mode)
@@ -269,6 +282,7 @@
       history = [item, ...history].slice(0, 50);
 
       saveState();
+      client.saveHistory($state.snapshot(history) as CallHistoryItem[]).catch(() => {});
     } catch (e: any) {
       error = e.message;
     } finally {
@@ -396,7 +410,8 @@
         <HistoryPanel
           {history}
           onselect={restoreFromHistory}
-          onclear={() => { history = []; saveState(); }}
+          onclear={() => { history = []; client.saveHistory([]).catch(() => {}); }}
+          ondeleteitem={async (id: string) => { history = await client.deleteHistoryItem(id); }}
         />
       </div>
 
