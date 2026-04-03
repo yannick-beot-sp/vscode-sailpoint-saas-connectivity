@@ -297,12 +297,12 @@
         {
           "command": "vscode-sailpoint-saas-connectivity.tenant.set-readonly",
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == tenantWritable",
-          "group": "inline@1"
+          "group": "inline@50"
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.tenant.set-writable",
           "when": "view == vscode-sailpoint-saas-connectivity.view && viewItem == tenantReadOnly",
-          "group": "inline@1"
+          "group": "inline@50"
         },
         {
           "command": "vscode-sailpoint-saas-connectivity.folder.add",
@@ -428,7 +428,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
-    "@types/node": "20.x",
+    "@types/node": "^20.19.38",
     "@types/vscode": "^1.96.0",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",

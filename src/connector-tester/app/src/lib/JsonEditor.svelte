@@ -1,21 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { EditorState } from '@codemirror/state';
-  import { EditorView, lineNumbers, highlightActiveLine, keymap } from '@codemirror/view';
+  import { EditorState, RangeSetBuilder } from '@codemirror/state';
+  import { EditorView, lineNumbers, highlightActiveLine, keymap, ViewPlugin, Decoration, type DecorationSet } from '@codemirror/view';
   import { history, defaultKeymap, historyKeymap } from '@codemirror/commands';
   import { json } from '@codemirror/lang-json';
-  import { HighlightStyle, syntaxHighlighting, foldGutter, codeFolding, foldKeymap } from '@codemirror/language';
-  import { tags } from '@lezer/highlight';
+  import { foldGutter, codeFolding, foldKeymap, syntaxTree } from '@codemirror/language';
 
   let {
     value = $bindable('{}'),
     valid = $bindable(true),
-    placeholder = '{}',
     label = 'Body',
   }: {
     value: string;
     valid: boolean;
-    placeholder?: string;
     label?: string;
   } = $props();
 
@@ -64,15 +61,72 @@
     },
   });
 
-  // Reuse the same CSS classes already defined globally in app.css (.jk, .js, .jn, .jb)
-  // This avoids relying on CodeMirror's StyleModule injection, which can fail in VS Code webviews.
-  const jsonHighlight = HighlightStyle.define([
-    { tag: tags.propertyName, class: 'jk' },
-    { tag: [tags.string, tags.special(tags.string)], class: 'js' },
-    { tag: tags.number, class: 'jn' },
-    { tag: [tags.bool, tags.atom], class: 'jb' },
-    { tag: tags.null, class: 'jb' },
-  ]);
+  const BRACKET_COLORS = [
+    'var(--vscode-editorBracketHighlight-foreground1, #ffd700)',
+    'var(--vscode-editorBracketHighlight-foreground2, #da70d6)',
+    'var(--vscode-editorBracketHighlight-foreground3, #179fff)',
+  ];
+
+  const TOKEN_COLORS: Record<string, string> = {
+    PropertyName: 'var(--vscode-symbolIcon-propertyForeground, #9cdcfe)',
+    String: '#ce9178',
+    Number: '#b5cea8',
+    True: '#569cd6',
+    False: '#569cd6',
+    Null: '#569cd6',
+  };
+
+  function buildDecorations(view: EditorView): DecorationSet {
+    const marks: Array<{ from: number; to: number; color: string }> = [];
+
+    syntaxTree(view.state).iterate({
+      enter(node) {
+        // Syntax token coloring
+        const tokenColor = TOKEN_COLORS[node.name];
+        if (tokenColor) {
+          marks.push({ from: node.from, to: node.to, color: tokenColor });
+          return false; // don't descend into token nodes
+        }
+
+        // Bracket coloring for Object/Array
+        if (node.name === 'Object' || node.name === 'Array') {
+          if (node.to - node.from < 2) return;
+          let depth = 0;
+          let parent = node.node.parent;
+          while (parent) {
+            if (parent.name === 'Object' || parent.name === 'Array') depth++;
+            parent = parent.parent;
+          }
+          const color = BRACKET_COLORS[depth % 3];
+          marks.push({ from: node.from, to: node.from + 1, color });
+          marks.push({ from: node.to - 1, to: node.to, color });
+        }
+      },
+    });
+
+    marks.sort((a, b) => a.from - b.from);
+
+    const builder = new RangeSetBuilder<Decoration>();
+    for (const { from, to, color } of marks) {
+      builder.add(from, to, Decoration.mark({ attributes: { style: `color: ${color}` } }));
+    }
+    return builder.finish();
+  }
+
+  const bracketColorPlugin = ViewPlugin.fromClass(
+    class {
+      decorations: DecorationSet;
+      constructor(view: EditorView) {
+        this.decorations = buildDecorations(view);
+      }
+      update(update: { docChanged: boolean; view: EditorView }) {
+        if (update.docChanged) {
+          this.decorations = buildDecorations(update.view);
+        }
+      }
+    },
+    { decorations: (v) => v.decorations },
+  );
 
   function validate(raw: string) {
     const trimmed = raw.trim();
@@ -118,7 +172,7 @@
           codeFolding(),
           json(),
           vscodeTheme,
-          syntaxHighlighting(jsonHighlight),
+          bracketColorPlugin,
           keymap.of([...defaultKeymap, ...historyKeymap, ...foldKeymap]),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
