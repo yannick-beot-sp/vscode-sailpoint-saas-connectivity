@@ -68,13 +68,15 @@
   let envFiles = $state<EnvFile[]>([]);
   let selectedEnvFilePath = $state<string | null>(null);
 
+  let historyPage = $state(0);
+  let historyPageSize = $state(10);
+
   let loading = $state(false);
   let actionsLoading = $state(false);
   let configLoading = $state(false);
   let error = $state<string | null>(null);
 
   let isRemote = $derived(target.type === 'tenant');
-  let canSync = $derived(target.type === 'local' || !!selectedSourceName);
 
   // --- Persistence ---
   let stateRestored = false;
@@ -89,6 +91,8 @@
         config,
         selectedSourceName,
         selectedEnvFilePath,
+        historyPage,
+        historyPageSize,
       });
     } catch {
       // not in VS Code context (dev mode)
@@ -107,6 +111,8 @@
       config,
       selectedSourceName,
       selectedEnvFilePath,
+      historyPage,
+      historyPageSize,
     };
     if (!stateRestored) return;
     try {
@@ -118,6 +124,7 @@
 
   onMount(async () => {
     let savedHistory: CallHistoryItem[] | undefined;
+    let savedHistoryPage: number | undefined;
     try {
       const saved = Messenger.getState() as any;
       if (saved) {
@@ -136,7 +143,11 @@
         if (saved.config !== undefined) config = saved.config;
         if (saved.selectedSourceName !== undefined) selectedSourceName = saved.selectedSourceName;
         if (saved.selectedEnvFilePath !== undefined) selectedEnvFilePath = saved.selectedEnvFilePath;
+        if (saved.historyPageSize !== undefined) historyPageSize = saved.historyPageSize;
         savedHistory = saved.history;
+        // historyPage is saved for later — must be restored after history loads
+        // so the $effect in HistoryPanel doesn't reset it to 0 on empty history
+        savedHistoryPage = saved.historyPage;
       }
     } catch {
       // not in VS Code context (dev mode)
@@ -152,6 +163,7 @@
       } else {
         history = persistedHistory;
       }
+      if (savedHistoryPage !== undefined) historyPage = savedHistoryPage;
     } catch {
       // not in VS Code context (dev mode)
     }
@@ -199,7 +211,6 @@
     actions = [];
     error = null;
     if (target.type === 'local') {
-      selectedSourceName = null;
       loadActions();
     } else {
       loadTenantActions();
@@ -294,7 +305,6 @@
     configLoading = true;
     try {
       const result = await client.syncConfig(
-        $state.snapshot(target) as Target,
         selectedEnvFilePath ?? undefined,
         selectedSourceName ?? undefined,
       );
@@ -314,6 +324,8 @@
     body = JSON.stringify(item.request.payload, null, 2);
     response = item.response ?? null;
     if (item.config !== undefined) config = item.config;
+    // Ensure connectors/actions are loaded for the restored target
+    handleTargetChange();
     saveState();
   }
 
@@ -408,6 +420,8 @@
       <div class="resize-wrapper" style="flex: 0 0 {histWidthPct}%">
         <HistoryPanel
           {history}
+          bind:page={historyPage}
+          bind:pageSize={historyPageSize}
           onselect={restoreFromHistory}
           onclear={() => { history = []; client.saveHistory([]).catch(() => {}); }}
           ondeleteitem={async (id: string) => { history = await client.deleteHistoryItem(id); }}
@@ -429,7 +443,6 @@
           {envFiles}
           sources={instanceSources}
           sourcesLoading={instanceSourcesLoading}
-          {canSync}
           loading={configLoading}
           onsync={syncConfig}
           onrefreshenvfiles={() => { client.getEnvFiles().then(files => { envFiles = files; }).catch(() => {}); }}

@@ -263,7 +263,6 @@ export class ConnectorTesterPanel {
     private async _handleExecuteTenantAction(requestId: string, cmd: string, sourceId: string, input: any, config: any) {
         const start = Date.now();
         try {
-
             const client = await this._clientFactory.getSaaSConnectivityClient(this.tenantId, this.tenantName)
             const result = await client.invokeCommand(sourceId, cmd, input, config)
             this._reply(commands.EXECUTE_TENANT_ACTION, requestId, {
@@ -332,41 +331,49 @@ export class ConnectorTesterPanel {
         }
     }
 
+    private async _buildConfig(sourceName?: string, envFilePath?: string): Promise<Record<string, any>> {
+        const config: Record<string, any> = {};
+
+        // 1. Start with connector-spec.json defaults
+        try {
+            const spec = this._getConnectorSpec();
+            const keys = this._extractSourceConfigKeys(spec.sourceConfig ?? []);
+            for (const key of keys) {
+                config[key] = spec.sourceConfigInitialValues?.[key] ?? null;
+            }
+        } catch {
+            // no connector-spec.json in workspace — skip
+        }
+
+        // 2. Override with source attributes
+        if (sourceName) {
+            const attributes = await this._fetchSourceConnectorAttributes(sourceName);
+            for (const [key, value] of Object.entries(attributes)) {
+                if (!SYSTEM_CONFIG_PROPERTIES.has(key)) {
+                    config[key] = value;
+                }
+            }
+        }
+
+        // 3. Override with env file values
+        if (envFilePath) {
+            const envValues = parseEnvFile(envFilePath);
+            for (const key of Object.keys(config)) {
+                if (key in envValues) {
+                    config[key] = envValues[key];
+                }
+            }
+        }
+
+        return config;
+    }
+
     private async _handleSyncConfig(requestId: string, payload: {
-        target: { type: 'local' } | { type: 'tenant' };
         envFilePath?: string;
         sourceName?: string;
     }) {
         try {
-            const config: Record<string, any> = {};
-
-            if (payload.target.type === 'local') {
-                const spec = this._getConnectorSpec()
-                const keys = this._extractSourceConfigKeys(spec.sourceConfig ?? []);
-                for (const key of keys) {
-                    config[key] = spec.sourceConfigInitialValues?.[key] ?? null;
-                }
-            } else {
-                if (!payload.sourceName) {
-                    throw new Error('No source selected. Please select a source in the Config panel before syncing.');
-                }
-                const attributes = await this._fetchSourceConnectorAttributes(payload.sourceName);
-                for (const [key, value] of Object.entries(attributes)) {
-                    if (!SYSTEM_CONFIG_PROPERTIES.has(key)) {
-                        config[key] = value;
-                    }
-                }
-            }
-
-            if (payload.envFilePath) {
-                const envValues = parseEnvFile(payload.envFilePath);
-                for (const key of Object.keys(config)) {
-                    if (key in envValues) {
-                        config[key] = envValues[key];
-                    }
-                }
-            }
-
+            const config = await this._buildConfig(payload.sourceName, payload.envFilePath);
             this._reply(commands.SYNC_CONFIG, requestId, config);
         } catch (e: any) {
             this._replyError(commands.SYNC_CONFIG, requestId, e.message);

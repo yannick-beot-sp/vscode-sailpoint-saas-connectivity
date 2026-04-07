@@ -49,4 +49,6 @@ export type AppState = {
   history: CallHistoryItem[];
   loading: boolean;
   error: string | null;
+  historyPage?: number;
+  historyPageSize?: number;
 };

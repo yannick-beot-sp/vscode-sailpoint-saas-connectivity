@@ -10,7 +10,6 @@
     envFiles = [],
     sources = [],
     sourcesLoading = false,
-    canSync = true,
     loading = false,
     onsync,
     onrefreshenvfiles,
@@ -23,7 +22,6 @@
     envFiles?: EnvFile[];
     sources?: ConnectorSource[];
     sourcesLoading?: boolean;
-    canSync?: boolean;
     loading?: boolean;
     onsync?: () => void;
     onrefreshenvfiles?: () => void;
@@ -70,7 +68,7 @@
     </select>
     <button class="secondary icon-btn" title="Refresh env files" onclick={onrefreshenvfiles}>⟳</button>
 
-    <button class="secondary" style="padding: 1px 6px; font-size: 11px;" onclick={onsync} disabled={loading || !canSync}>
+    <button class="secondary" style="padding: 1px 6px; font-size: 11px;" onclick={onsync} disabled={loading}>
       {#if loading}
         <span class="spinner"></span>
       {:else}

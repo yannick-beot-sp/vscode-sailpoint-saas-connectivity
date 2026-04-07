@@ -49,10 +49,10 @@ export class VsCodeClient implements ConnectorClient {
     );
   }
 
-  async syncConfig(target: Target, envFilePath?: string, sourceName?: string): Promise<ConnectorConfig> {
+  async syncConfig(envFilePath?: string, sourceName?: string): Promise<ConnectorConfig> {
     const result = await messageHandler.request<ConnectorConfig | null>(
       commands.SYNC_CONFIG,
-      { target, envFilePath, sourceName }
+      { envFilePath, sourceName }
     );
     return result ?? {};
   }

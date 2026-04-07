@@ -16,6 +16,16 @@
   } = $props();
 
   let lastPort = $state(3000);
+  let selectEl = $state<HTMLSelectElement | null>(null);
+
+  // Re-apply the select value after connectors load asynchronously.
+  // Svelte only re-sets the DOM value when target.connectorId changes,
+  // not when new <option> elements are added — so we do it manually here.
+  $effect(() => {
+    if (connectors.length > 0 && target.type === 'tenant' && selectEl) {
+      selectEl.value = target.connectorId;
+    }
+  });
 
   function setLocal() {
     if (target.type !== 'local') {
@@ -73,6 +83,7 @@
       <span class="spinner"></span>
     {:else}
       <select
+        bind:this={selectEl}
         class="connector-select"
         value={target.connectorId}
         onchange={handleConnectorChange}

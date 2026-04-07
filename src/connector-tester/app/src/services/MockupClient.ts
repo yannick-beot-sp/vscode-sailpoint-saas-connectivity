@@ -1,4 +1,4 @@
-import type { CallHistoryItem, ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile, Target } from '../types';
+import type { CallHistoryItem, ConnectorConfig, ConnectorItem, ConnectorResponse, ConnectorSource, EnvFile } from '../types';
 import type { ConnectorClient } from './Client';
 
 const MOCK_LOCAL_ACTIONS: string[] = [
@@ -128,7 +128,7 @@ export class MockupClient implements ConnectorClient {
     };
   }
 
-  async syncConfig(_target: Target, _envFilePath?: string, _sourceName?: string): Promise<ConnectorConfig> {
+  async syncConfig(_envFilePath?: string, _sourceName?: string): Promise<ConnectorConfig> {
     await delay(500);
     return {
       clientId: 'mock-client-id',
