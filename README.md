@@ -74,6 +74,7 @@ The SailPoint SaaS Connectivity extension makes it easy to:
 - Link or unlink a customizer and a source
 - View, stream logs from sources
 - Initialize projects for Connectors and Customizers with the commands "SaaS Connectivity: Create Connector Project..." and "SaaS Connectivity: Create Customizer Project..."
+- Test a connector locally or remotely
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -89,12 +90,25 @@ The VSIX can be installed from the extension menu. Press `Ctrl`+`Shift`+`X` and 
 
 <!-- USAGE EXAMPLES -->
 
-## Usage
+## Connector tester
+
+It's possible to test locally and remotely connectors.
+
+The configuration can be synchronized from the `connector-spec.json`, a remote source or any file starting by `.env`.
+
+Calls can be replayed as any call are stored in history.
+
+![Connector Tester](resources/connector-tester.png)
 
 
 <!-- ROADMAP -->
 
 ## Release Notes
+
+### 0.0.7
+
+- Connector tester to test locally or remotely
+- Publication to Open VSX registry
 
 ### 0.0.6
 

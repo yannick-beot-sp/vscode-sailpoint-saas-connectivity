@@ -6,6 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+## [0.0.7] - 2026-04-07
+
+- Connector tester to test locally or remotely
+- Publication to Open VSX registry
+
 ## [0.0.6] - 2025-10-06
 
 ### Added

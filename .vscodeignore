@@ -19,3 +19,5 @@ submodules/**
 !submodules/sailpoint-cli/cmd/connector/static/**
 RELEASE.md
 CHANGELOG.md
+resources/connector-tester.png
+resources/saas-connectivity.svg
