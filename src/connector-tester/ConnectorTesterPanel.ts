@@ -25,23 +25,43 @@ const SYSTEM_CONFIG_PROPERTIES = new Set([
     'beforeProvisioningRule', 'since', 'status',
 ]);
 
-const AVAILABLE_COMMANDS = [
-    'std:account:create',
-    'std:account:delete',
-    'std:account:disable',
-    'std:account:discover-schema',
-    'std:account:enable',
-    'std:account:list',
-    'std:account:read',
-    'std:account:unlock',
-    'std:account:update',
-    'std:change-password',
-    'std:entitlement:list',
-    'std:entitlement:read',
-    'std:source-data:discover',
-    'std:source-data:read',
-    'std:test-connection',
-]
+/**
+ * SailPoint Standard Commands for @sailpoint/connector-sdk v1.1.41
+ */
+enum StandardCommand {
+    StdAccountCreate = "std:account:create",
+    StdAccountDelete = "std:account:delete",
+    StdAccountDisable = "std:account:disable",
+    StdAccountDiscoverSchema = "std:account:discover-schema",
+    StdAccountEnable = "std:account:enable",
+    StdAccountList = "std:account:list",
+    StdAccountRead = "std:account:read",
+    StdAccountUnlock = "std:account:unlock",
+    StdAccountUpdate = "std:account:update",
+    StdAgentList = "std:agent:list",
+    StdMachineIdentityList = "std:machine-identity:list",
+    StdResourceList = "std:resource:list",
+    StdAuthenticate = "std:authenticate",
+    StdEntitlementList = "std:entitlement:list",
+    StdEntitlementRead = "std:entitlement:read",
+    StdSpecRead = "std:spec:read",
+    StdTestConnection = "std:test-connection",
+    StdChangePassword = "std:change-password",
+    StdSourceDataDiscover = "std:source-data:discover",
+    StdSourceDataRead = "std:source-data:read",
+    StdConfigOptions = "std:config-options:read",
+    StdApplicationDiscoveryList = "std:application-discovery:list",
+    StdSsfStreamDiscover = "std:ssf-stream:discover",
+    StdSsfStreamRead = "std:ssf-stream:read",
+    StdSsfStreamCreate = "std:ssf-stream:create",
+    StdSsfStreamUpdate = "std:ssf-stream:update",
+    StdSsfStreamStatusUpdate = "std:ssf-stream:status-update",
+    StdSsfStreamDelete = "std:ssf-stream:delete",
+    StdSsfStreamVerify = "std:ssf-stream:verify",
+    StdSsfStreamReplace = "std:ssf-stream:replace"
+}
+
+const AVAILABLE_COMMANDS = Object.values(StandardCommand).sort()
 
 function getNonce() {
     let text = '';

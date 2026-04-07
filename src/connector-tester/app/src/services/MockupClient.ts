@@ -15,6 +15,39 @@ const MOCK_LOCAL_ACTIONS: string[] = [
   'std:account:unlock',
 ];
 
+const MOCK_TENANT_ACTIONS: string[] = [
+  'std:account:create',
+  'std:account:delete',
+  'std:account:disable',
+  'std:account:discover-schema',
+  'std:account:enable',
+  'std:account:list',
+  'std:account:read',
+  'std:account:unlock',
+  'std:account:update',
+  'std:agent:list',
+  'std:application-discovery:list',
+  'std:authenticate',
+  'std:change-password',
+  'std:config-options:read',
+  'std:entitlement:list',
+  'std:entitlement:read',
+  'std:machine-identity:list',
+  'std:resource:list',
+  'std:source-data:discover',
+  'std:source-data:read',
+  'std:spec:read',
+  'std:ssf-stream:create',
+  'std:ssf-stream:delete',
+  'std:ssf-stream:discover',
+  'std:ssf-stream:read',
+  'std:ssf-stream:replace',
+  'std:ssf-stream:status-update',
+  'std:ssf-stream:update',
+  'std:ssf-stream:verify',
+  'std:test-connection',
+];
+
 const MOCK_SOURCES: ConnectorSource[] = [
   { id: 'instance-entra-id', name: 'Entra ID Source' },
   { id: 'instance-2-id', name: 'LDAP Source' },
@@ -83,7 +116,7 @@ export class MockupClient implements ConnectorClient {
 
   async getTenantActions(_connectorId: string): Promise<string[]> {
     await delay(300);
-    return MOCK_LOCAL_ACTIONS;
+    return MOCK_TENANT_ACTIONS;
   }
 
   async executeTenantAction(_connectorId: string, action: string, payload: any, _config?: ConnectorConfig): Promise<ConnectorResponse> {

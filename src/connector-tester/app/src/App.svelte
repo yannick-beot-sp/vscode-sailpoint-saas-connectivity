@@ -43,21 +43,6 @@
     dragType = null;
   }
 
-  const REMOTE_COMMANDS = [
-    'std:account:list',
-    'std:account:read',
-    'std:entitlement:list',
-    'std:entitlement:read',
-    'std:test-connection',
-    'std:account:update',
-    'std:account:create',
-    'std:account:delete',
-    'std:account:disable',
-    'std:account:enable',
-    'std:account:unlock',
-    'std:account:discover-schema',
-  ];
-
   const client = ClientFactory.getClient();
 
   // --- State ---
@@ -90,9 +75,6 @@
 
   let isRemote = $derived(target.type === 'tenant');
   let canSync = $derived(target.type === 'local' || !!selectedSourceName);
-
-  // Remote commands are always available; local commands are loaded on demand
-  let displayedActions = $derived(isRemote ? REMOTE_COMMANDS : actions);
 
   // --- Persistence ---
   let stateRestored = false;
@@ -181,6 +163,7 @@
       loadActions();
     } else {
       loadConnectors();
+      loadTenantActions();
     }
 
     client.getEnvFiles().then(files => { envFiles = files; }).catch(() => {});
@@ -213,14 +196,16 @@
 
   // --- Target change ---
   function handleTargetChange() {
-    selectedAction = null;
     actions = [];
     error = null;
     if (target.type === 'local') {
       selectedSourceName = null;
       loadActions();
-    } else if (connectors.length === 0) {
-      loadConnectors();
+    } else {
+      loadTenantActions();
+      if (connectors.length === 0) {
+        loadConnectors();
+      }
     }
   }
 
@@ -231,6 +216,20 @@
     error = null;
     try {
       actions = await client.getLocalActions();
+    } catch (e: any) {
+      error = `Failed to load commands: ${e.message}`;
+    } finally {
+      actionsLoading = false;
+    }
+  }
+
+  // --- Load remote (tenant) actions ---
+  async function loadTenantActions() {
+    actionsLoading = true;
+    error = null;
+    try {
+      const connectorId = target.type === 'tenant' ? target.connectorId : '';
+      actions = await client.getTenantActions(connectorId);
     } catch (e: any) {
       error = `Failed to load commands: ${e.message}`;
     } finally {
@@ -345,7 +344,7 @@
       onrefresh={loadConnectors}
     />
     <ActionSelector
-      actions={displayedActions}
+      {actions}
       bind:selectedAction
       loading={actionsLoading}
       showReload={!isRemote}
