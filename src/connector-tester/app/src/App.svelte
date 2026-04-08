@@ -397,6 +397,13 @@
       <div
         class="divider divider-h"
         class:active={dragType === 'h-main'}
+        role="slider"
+        aria-label="Resize request and response panels"
+        aria-orientation="vertical"
+        aria-valuenow={reqWidthPct}
+        aria-valuemin={15}
+        aria-valuemax={85}
+        tabindex="0"
         onmousedown={e => startDrag(e, 'h-main')}
       ></div>
 
@@ -412,6 +419,13 @@
     <div
       class="divider divider-v"
       class:active={dragType === 'v'}
+      role="slider"
+      aria-label="Resize main and bottom panels"
+      aria-orientation="horizontal"
+      aria-valuenow={mainHeightPct}
+      aria-valuemin={15}
+      aria-valuemax={85}
+      tabindex="0"
       onmousedown={e => startDrag(e, 'v')}
     ></div>
 
@@ -431,6 +445,13 @@
       <div
         class="divider divider-h"
         class:active={dragType === 'h-bottom'}
+        role="slider"
+        aria-label="Resize history and config panels"
+        aria-orientation="vertical"
+        aria-valuenow={histWidthPct}
+        aria-valuemin={15}
+        aria-valuemax={85}
+        tabindex="0"
         onmousedown={e => startDrag(e, 'h-bottom')}
       ></div>
 
