@@ -2,7 +2,7 @@
   "name": "vscode-sailpoint-saas-connectivity",
   "displayName": "SailPoint SaaS Connectivity",
   "description": "Extension to develop SaaS connectors for SailPoint Identity Security Cloud",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publisher": "yannick-beot-sp",
   "license": "SEE LICENSE IN LICENSE.txt",
   "icon": "resources/saas-connectivity.png",
@@ -416,15 +416,16 @@
     "watch": "npm-run-all -p watch:**",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "watch:connector-tester-webview": "npm --prefix src/connector-tester/app run build-watch",
+    "watch:connector-tester-webview": "cd src/connector-tester/app && npm run build-watch",
     "build:connector-tester-webview": "npm --prefix src/connector-tester/app run build",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production && npm run build:connector-tester-webview",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "postinstall": "cd src/connector-tester/app && npm install"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
