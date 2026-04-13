@@ -6,7 +6,26 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+## [0.0.9] - 2026-04-13
+
+### Removed
+
+- `spConnectorInstanceId` is not considered a "system property" and is returned from the source.
+
+### Changed
+
+- Update UI of Connector tester for clarity on expected value for "input".
+- Update Axios dependency
+
+## [0.0.8] - 2026-04-08
+
+### Fixed
+
+- Fixed CI/CD issue for webview
+
 ## [0.0.7] - 2026-04-07
+
+### Added
 
 - Connector tester to test locally or remotely
 - Publication to Open VSX registry

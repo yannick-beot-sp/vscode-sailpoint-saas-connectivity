@@ -98,12 +98,22 @@ The configuration can be synchronized from the `connector-spec.json`, a remote s
 
 Calls can be replayed as any call are stored in history.
 
-![Connector Tester](resources/connector-tester.png)
+![Connector Tester](resources/readme/connector-tester.png)
 
 
 <!-- ROADMAP -->
 
 ## Release Notes
+
+### 0.0.9
+
+- `spConnectorInstanceId` is not considered a "system property" and is returned from the source.
+- Update UI of Connector tester for clarity on expected value for "input".
+- Update Axios dependency
+
+### 0.0.8
+
+- Fixed CI/CD issue for webview
 
 ### 0.0.7
 
