@@ -9,7 +9,7 @@
   let {
     value = $bindable('{}'),
     valid = $bindable(true),
-    label = 'Body',
+    label = 'Input',
   }: {
     value: string;
     valid: boolean;

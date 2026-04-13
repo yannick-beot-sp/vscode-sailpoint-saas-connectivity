@@ -18,7 +18,7 @@ interface CallHistoryItem {
 }
 
 const SYSTEM_CONFIG_PROPERTIES = new Set([
-    'healthCheckTimeout', 'idnProxyType', 'connectionType', 'spConnectorInstanceId',
+    'healthCheckTimeout', 'idnProxyType', 'connectionType',
     'recommendationStatus', 'deleteThresholdPercentage', 'spConnectorSpecId',
     'sourceConnected', 'slpt-source-diagnostics', 'cloudCacheUpdate',
     'templateApplication', 'healthy', 'cloudDisplayName', 'connectorName',
