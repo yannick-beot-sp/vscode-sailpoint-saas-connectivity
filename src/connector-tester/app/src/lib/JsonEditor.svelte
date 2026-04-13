@@ -1,19 +1,21 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { EditorState, RangeSetBuilder } from '@codemirror/state';
-  import { EditorView, lineNumbers, highlightActiveLine, keymap, ViewPlugin, Decoration, type DecorationSet } from '@codemirror/view';
+  import { EditorView, lineNumbers, highlightActiveLine, keymap, ViewPlugin, Decoration, type DecorationSet, placeholder } from '@codemirror/view';
   import { history, defaultKeymap, historyKeymap } from '@codemirror/commands';
   import { json } from '@codemirror/lang-json';
   import { foldGutter, codeFolding, foldKeymap, syntaxTree } from '@codemirror/language';
 
   let {
-    value = $bindable('{}'),
+    value = $bindable(''),
     valid = $bindable(true),
     label = 'Input',
+    placeholder: placeholderText = '',
   }: {
     value: string;
     valid: boolean;
     label?: string;
+    placeholder?: string;
   } = $props();
 
   let parseError = $state<string | null>(null);
@@ -174,6 +176,7 @@
           vscodeTheme,
           bracketColorPlugin,
           keymap.of([...defaultKeymap, ...historyKeymap, ...foldKeymap]),
+          placeholder(placeholderText),
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               const raw = update.state.doc.toString();
@@ -240,6 +243,11 @@
   .cm-wrap :global(.cm-editor) {
     flex: 1;
     min-height: 0;
+  }
+
+  .cm-wrap :global(.cm-placeholder) {
+    color: var(--vscode-input-placeholderForeground, #888);
+    font-style: italic;
   }
 
   .body-label {

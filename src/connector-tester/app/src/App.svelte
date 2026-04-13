@@ -49,7 +49,21 @@
   let target = $state<Target>({ type: 'local', port: 3000 });
   let actions = $state<string[]>([]);
   let selectedAction = $state<string | null>(null);
-  let body = $state('{}');
+  const bodyPlaceholder = JSON.stringify(
+    {
+      attributes: {
+        id: 'john.doe',
+        email: 'example@gmail.com',
+        department: 'external',
+        displayName: 'John Doe',
+        password: 'test',
+        entitlements: ['user', 'administrator'],
+      },
+    },
+    null,
+    2,
+  );
+  let body = $state('');
   let bodyValid = $state(true);
   let response = $state<ConnectorResponse | null>(null);
   let history = $state<CallHistoryItem[]>([]);
@@ -390,7 +404,7 @@
       <div class="resize-wrapper" style="flex: 0 0 {reqWidthPct}%">
         <div class="panel">
           <p class="panel-title">Request</p>
-          <JsonEditor bind:value={body} bind:valid={bodyValid} />
+          <JsonEditor bind:value={body} bind:valid={bodyValid} placeholder={bodyPlaceholder} />
         </div>
       </div>
 
