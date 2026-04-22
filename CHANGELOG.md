@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+## [0.1.0] - 2026-04-22
+
 ### Added
 
 - Add to response display search and collapse

@@ -117,6 +117,15 @@ This extension exposes the following settings (accessible via **File > Preferenc
 
 ## Release Notes
 
+### 0.1.0
+
+- Add to response display search and collapse
+- Add configuration settings for response max size
+- Add headers from remote response
+- Remove filtering of configuration keys fetched from the cloud
+- Response are now truncated
+- Reset the response of the output
+
 ### 0.0.9
 
 - `spConnectorInstanceId` is not considered a "system property" and is returned from the source.
