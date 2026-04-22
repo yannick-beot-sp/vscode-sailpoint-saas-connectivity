@@ -406,6 +406,12 @@
         "vscode-sailpoint-saas-connectivity.default.build.script": {
           "type": "string",
           "default": "pack-zip"
+        },
+        "vscode-sailpoint-saas-connectivity.connectorTester.maxResponseBodyKB": {
+          "type": "number",
+          "default": 512,
+          "minimum": 1,
+          "description": "Maximum size (in KB) of a connector response body sent to the Connector Tester webview. Responses exceeding this limit are truncated and replaced with a summary to avoid slowing down VS Code."
         }
       }
     }

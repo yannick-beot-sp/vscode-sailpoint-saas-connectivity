@@ -19,6 +19,7 @@ export type ConnectorResponse = {
   headers?: Record<string, string>;
   body: any;
   error?: string;
+  truncated?: boolean;
 };
 
 export type CallHistoryItem = {

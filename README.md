@@ -47,6 +47,7 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#configuration">Configuration</a></li>
     <li><a href="#release-notes">Release Notes</a></li>
     <li>
       <a href="#contributing">Contributing</a>
@@ -100,6 +101,19 @@ Calls can be replayed as any call are stored in history.
 
 ![Connector Tester](resources/readme/connector-tester.png)
 
+
+<!-- CONFIGURATION -->
+
+## Configuration
+
+This extension exposes the following settings (accessible via **File > Preferences > Settings** or `Ctrl`+`,`, then searching for "SailPoint SaaS Connectivity"):
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `vscode-sailpoint-saas-connectivity.default.build.script` | `string` | `pack-zip` | npm script used to build and package the connector before deployment. |
+| `vscode-sailpoint-saas-connectivity.connectorTester.maxResponseBodyKB` | `number` | `512` | Maximum size (in KB) of a connector response body sent to the Connector Tester webview. Responses exceeding this limit are truncated and replaced with a summary to avoid slowing down VS Code. |
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
 

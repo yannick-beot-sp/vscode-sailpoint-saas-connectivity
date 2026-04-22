@@ -6,6 +6,21 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+### Added
+
+- Add to response display search and collapse
+- Add configuration settings for response max size
+- Add headers from remote response
+
+### Changed
+
+- Remove filtering of configuration keys fetched from the cloud
+- Response are now truncated
+
+### Fixed
+
+- Reset the response of the output
+
 ## [0.0.9] - 2026-04-13
 
 ### Removed
