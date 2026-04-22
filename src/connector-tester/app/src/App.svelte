@@ -285,6 +285,7 @@
 
     loading = true;
     error = null;
+    response = null;
 
     try {
       let resp: ConnectorResponse;

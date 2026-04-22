@@ -17,14 +17,6 @@ interface CallHistoryItem {
     config?: string;
 }
 
-const SYSTEM_CONFIG_PROPERTIES = new Set([
-    'healthCheckTimeout', 'idnProxyType', 'connectionType',
-    'recommendationStatus', 'deleteThresholdPercentage', 'spConnectorSpecId',
-    'sourceConnected', 'slpt-source-diagnostics', 'cloudCacheUpdate',
-    'templateApplication', 'healthy', 'cloudDisplayName', 'connectorName',
-    'beforeProvisioningRule', 'since', 'status',
-]);
-
 /**
  * SailPoint Standard Commands for @sailpoint/connector-sdk v1.1.41
  */
@@ -219,7 +211,7 @@ export class ConnectorTesterPanel {
     private async _handleGetLocalActions(requestId: string) {
         try {
             const connectorSpecJSON = this._getConnectorSpec()
-            this._reply(commands.GET_LOCAL_ACTIONS, requestId, connectorSpecJSON.commands);
+            this._reply(commands.GET_LOCAL_ACTIONS, requestId, connectorSpecJSON.commands ?? AVAILABLE_COMMANDS);
         } catch (e: any) {
             this._replyError(commands.GET_LOCAL_ACTIONS, requestId, e.message);
         }
@@ -349,9 +341,7 @@ export class ConnectorTesterPanel {
         if (sourceName) {
             const attributes = await this._fetchSourceConnectorAttributes(sourceName);
             for (const [key, value] of Object.entries(attributes)) {
-                if (!SYSTEM_CONFIG_PROPERTIES.has(key)) {
-                    config[key] = value;
-                }
+                config[key] = value;
             }
         }
 
