@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { AxiosInstance } from 'axios';
+import { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Connector, CreateConnectorRequest, CreateConnectorResponse, CreateCustomizerRequest, CreateCustomizerResponse, Customizer, GetInstancesResponse, Instance, InvokeCommandRequest, LinkRequest, LinkResponse, LogEvents, LogMessage, LogRequest, UnlinkRequest, UnlinkResponse, UpdateConnectorRequest, UpdateConnectorResponse, UpdateCustomizerRequest, UpdateCustomizerResponse, UploadConnectorResponse, UploadCustomizerResponse, } from '../models/API';
 import { compareByName, compareCaseInsensitive } from '../utils/compare';
 import { basename } from 'path';
@@ -109,7 +109,7 @@ export class SaaSConnectivityClient {
      * @param alias 
      * @returns 
     */
-    public async invokeCommand(id: string, cmd: string, input:any, config:any) {
+    public async invokeCommand(id: string, cmd: string, input: any, config: any, transformResponse?: AxiosRequestConfig['transformResponse']) {
         const body: InvokeCommandRequest = {
             connectorRef: id,
             input,
@@ -117,8 +117,28 @@ export class SaaSConnectivityClient {
             tag: "latest",
             type: cmd
         }
-        const response = await this.axios.post<UpdateConnectorResponse>(`platform-connectors/${id}/invoke`, body)
-        return response.data
+        const response = await this.axios.post<UpdateConnectorResponse>(
+            `platform-connectors/${id}/invoke`,
+            body,
+            transformResponse ? { transformResponse } : undefined
+        )
+        return { data: response.data, headers: response.headers as Record<string, string> }
+    }
+
+    public async invokeCommandAsStream(id: string, cmd: string, input: any, config: any) {
+        const body: InvokeCommandRequest = {
+            connectorRef: id,
+            input,
+            config,
+            tag: "latest",
+            type: cmd
+        }
+        const response = await this.axios.post(
+            `platform-connectors/${id}/invoke`,
+            body,
+            { responseType: 'stream' }
+        )
+        return { stream: response.data as any, status: response.status, headers: response.headers as Record<string, string> }
     }
 
     //#endregion Connectors

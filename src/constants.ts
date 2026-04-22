@@ -38,9 +38,12 @@ export const UNLINK_CUSTOMIZER_INSTANCE = `${COMMAND_PREFIX}.unlink`;
 
 export const OPEN_CONNECTOR_TESTER = `${COMMAND_PREFIX}.connector-tester.open`;
 export const OPEN_CONNECTOR_TESTER_INLINE = `${COMMAND_PREFIX}.connector-tester.open-inline`;
+
 /////////////////////////
 // Configuration
 /////////////////////////
 
 export const CONF_DEFAULT_BUILD_SCRIPT = "default.build.script"
 export const CONF_DEFAULT_BUILD_SCRIPT_VALUE = 'pack-zip'
+export const CONF_MAX_RESPONSE_BODY_KB = "connectorTester.maxResponseBodyKB"
+export const CONF_MAX_RESPONSE_BODY_KB_VALUE = 50*1024

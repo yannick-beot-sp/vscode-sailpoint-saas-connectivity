@@ -191,7 +191,7 @@
 
     {#if response.truncated}
       <div class="truncated-banner">
-        ⚠ Response body truncated — original size: {response.body?._originalSizeKB ?? '?'} KB.
+        ⚠ Response body truncated.
         Increase <code>connectorTester.maxResponseBodyKB</code> in VS Code settings to raise the limit.
       </div>
     {/if}

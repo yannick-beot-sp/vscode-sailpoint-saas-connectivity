@@ -8,6 +8,7 @@ import { clearCache } from '../services/SaaSConnectivityClient';
 import { ISCExtensionClient } from '../iscextension/iscextension-client';
 import { getWorkspaceFolder } from '../utils/vsCodeHelpers';
 import { parseEnvFile } from '../utils/envUtils';
+import { Config } from '../utils/Config';
 
 interface CallHistoryItem {
     id: string;
@@ -217,6 +218,49 @@ export class ConnectorTesterPanel {
         }
     }
 
+    private async _capStream(stream: any): Promise<{ raw: string; truncated: boolean; totalBytes: number }> {
+        const maxBytes = Config.getMaxResponseBodyKB()
+
+        const chunks: Uint8Array[] = [];
+        let totalBytes = 0;
+        let truncated = false;
+
+        await new Promise<void>((resolve, reject) => {
+            stream.on('data', (chunk: Uint8Array) => {
+                const remaining = maxBytes - totalBytes;
+                if (remaining <= 0) {
+                    truncated = true;
+                    stream.destroy?.();
+                    resolve();
+                    return;
+                }
+                if (chunk.length > remaining) {
+                    chunks.push(chunk.subarray(0, remaining));
+                    totalBytes += remaining;
+                    truncated = true;
+                    stream.destroy?.();
+                    resolve();
+                } else {
+                    chunks.push(chunk);
+                    totalBytes += chunk.length;
+                }
+            });
+            stream.on('end', resolve);
+            stream.on('close', resolve);
+            stream.on('error', (e: Error) => { if (truncated) { resolve(); } else { reject(e); } });
+        });
+
+        const merged = new Uint8Array(totalBytes);
+        let offset = 0;
+        for (const c of chunks) { merged.set(c, offset); offset += c.length; }
+        let raw = new TextDecoder().decode(merged);
+        if (truncated) {
+            const lastNl = raw.lastIndexOf('\n');
+            if (lastNl > 0) { raw = raw.slice(0, lastNl); }
+        }
+        return { raw, truncated, totalBytes };
+    }
+
     private async _handleExecuteLocalAction(requestId: string, payload: {
         port: number;
         action: string;
@@ -228,12 +272,15 @@ export class ConnectorTesterPanel {
             const response = await axios.post(
                 `http://localhost:${payload.port}/`,
                 { type: payload.action, config: payload.config ?? {}, input: payload.body },
+                { responseType: 'stream' },
             );
+            const { raw, truncated } = await this._capStream(response.data);
             this._reply(commands.EXECUTE_LOCAL_ACTION, requestId, {
                 status: response.status,
                 duration: Date.now() - start,
                 headers: response.headers as Record<string, string>,
-                body: response.data,
+                body: raw,
+                truncated: truncated || undefined,
             });
         } catch (e: any) {
             const duration = Date.now() - start;
@@ -256,11 +303,14 @@ export class ConnectorTesterPanel {
         const start = Date.now();
         try {
             const client = await this._clientFactory.getSaaSConnectivityClient(this.tenantId, this.tenantName)
-            const result = await client.invokeCommand(sourceId, cmd, input, config)
+            const { stream, status, headers } = await client.invokeCommandAsStream(sourceId, cmd, input, config)
+            const { raw, truncated } = await this._capStream(stream)
             this._reply(commands.EXECUTE_TENANT_ACTION, requestId, {
-                status: 200,
+                status,
                 duration: Date.now() - start,
-                body: result,
+                headers,
+                body: raw,
+                truncated: truncated || undefined,
             });
         } catch (e: any) {
             const duration = Date.now() - start;
