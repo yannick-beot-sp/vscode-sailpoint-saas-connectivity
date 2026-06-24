@@ -6,6 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+### Fixed
+
+- If no connector spec is present, the actions will be all standard actions by default
+- Fixed returned body in case of error (due to streamable output)
+
 ## [0.1.0] - 2026-04-22
 
 ### Added

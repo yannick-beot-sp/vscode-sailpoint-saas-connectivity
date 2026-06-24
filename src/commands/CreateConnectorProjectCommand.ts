@@ -1,9 +1,7 @@
 import * as vscode from "vscode";
 import * as fs from 'fs/promises'; // Use fs.promises for async/await
 import * as path from 'path';
-import { constants as fsConstants } from 'fs'; // For fs.access constants
 import { isEmpty } from "../utils/stringUtils";
-
 
 async function askName(prompt: string, title: string): Promise<string | undefined> {
   const result = await vscode.window.showInputBox({

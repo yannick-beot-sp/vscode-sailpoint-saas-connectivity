@@ -194,7 +194,8 @@ export class ConnectorTesterPanel {
         const workspaceFolder = getWorkspaceFolder()
         console.log({ workspaceFolder });
         if (workspaceFolder === undefined) {
-            throw new Error("No workspace found. Try to open the folder of your connector before testing.")
+            console.error("No workspace found. Try to open the folder of your connector before testing.")
+            return undefined;
         }
         const connectorSpecPath = path.join(workspaceFolder, "connector-spec.json")
         console.log({ connectorSpecPath });
@@ -203,7 +204,8 @@ export class ConnectorTesterPanel {
             connectorSpecContent = fs.readFileSync(connectorSpecPath, { encoding: "utf8" })
         } catch (error) {
             console.error(error);
-            throw new Error("Could not read `connector-spec.json`. Try to open the folder of your connector before testing.")
+            console.error("Could not read `connector-spec.json`. Try to open the folder of your connector before testing.")
+            return undefined;
         }
         const connectorSpecJSON = JSON.parse(connectorSpecContent)
         return connectorSpecJSON
@@ -212,7 +214,7 @@ export class ConnectorTesterPanel {
     private async _handleGetLocalActions(requestId: string) {
         try {
             const connectorSpecJSON = this._getConnectorSpec()
-            this._reply(commands.GET_LOCAL_ACTIONS, requestId, connectorSpecJSON.commands ?? AVAILABLE_COMMANDS);
+            this._reply(commands.GET_LOCAL_ACTIONS, requestId, connectorSpecJSON?.commands ?? AVAILABLE_COMMANDS);
         } catch (e: any) {
             this._replyError(commands.GET_LOCAL_ACTIONS, requestId, e.message);
         }
@@ -289,7 +291,7 @@ export class ConnectorTesterPanel {
                 status: axiosResponse?.status ?? 0,
                 duration,
                 headers: axiosResponse?.headers as Record<string, string> | undefined,
-                body: axiosResponse?.data ?? null,
+                body: axiosResponse?.data ? (await this._capStream(axiosResponse.data))?.raw : null,
                 error: e.message,
             });
         }
@@ -318,7 +320,7 @@ export class ConnectorTesterPanel {
             this._reply(commands.EXECUTE_TENANT_ACTION, requestId, {
                 status: axiosResponse?.status ?? 0,
                 duration,
-                body: axiosResponse?.data ?? null,
+                body: axiosResponse?.data ? (await this._capStream(axiosResponse.data))?.raw : null,
                 error: e.message,
             });
         }
