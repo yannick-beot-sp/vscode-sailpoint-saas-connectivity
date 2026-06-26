@@ -65,13 +65,13 @@ export class DeployCustomizerCommand extends CustomizerUploader {
             return undefined
         }
 
-        fs.access(zipPath, fs.constants.R_OK, (err) => {
-            if (err) {
-                this.logger.error(err);
-                vscode.window.showErrorMessage(`Could not find ${zipPath}`)
-                return undefined
-            }
-        })
+        try {
+            await fs.promises.access(zipPath, fs.constants.R_OK)
+        } catch (error) {
+            this.logger.error(error)
+            vscode.window.showErrorMessage(`Could not find ${zipPath}`)
+            return undefined
+        }
         return zipPath
 
     }
