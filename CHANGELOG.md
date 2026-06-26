@@ -8,12 +8,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
-- Use of OutputChannel "SaaS Connectivity"
+- Use of OutputChannel "SaaS Connectivity" for easier access to log and control
 
 ### Fixed
 
-- If no connector spec is present, the actions will be all standard actions by default
+- If no connector spec is present, the actions will be all standard actions by default in the connector tester
 - Fixed returned body in case of error (due to streamable output)
+
+### Security 
+
+- The workspace must be trusted for the extension to be used (cf. https://code.visualstudio.com/docs/editing/workspaces/workspace-trust)
 
 ## [0.1.0] - 2026-04-22
 

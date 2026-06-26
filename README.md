@@ -117,6 +117,14 @@ This extension exposes the following settings (accessible via **File > Preferenc
 
 ## Release Notes
 
+### 0.1.1
+
+- Use of OutputChannel "SaaS Connectivity" for easier access to log and control
+- If no connector spec is present, the actions will be all standard actions by default in the connector tester
+- Fixed returned body in case of error (due to streamable output)
+- The workspace must be trusted for the extension to be used (cf. https://code.visualstudio.com/docs/editing/workspaces/workspace-trust)
+
+
 ### 0.1.0
 
 - Add to response display search and collapse
