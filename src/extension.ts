@@ -20,10 +20,14 @@ import { CreateConnectorProjectCommand, CreateCustomizerProjectCommand } from '.
 import { ConnectorTesterPanel } from './connector-tester/ConnectorTesterPanel'
 import { BaseTreeItem } from './models/TreeModel'
 import { ISCExtensionClient } from './iscextension/iscextension-client';
+import { Logger } from './utils/Logger';
+
+const logger = Logger.getLogger("extension");
 
 export function activate(context: vscode.ExtensionContext) {
 
-	console.log('Congratulations, your extension "vscode-sailpoint-saas-connectivity" is now active!');
+	Logger.init(context);
+	logger.info('Extension "vscode-sailpoint-saas-connectivity" is now active.');
 	new SaaSConnectivityView(context)
 	registerISCExtentionCommands(context)
 	/**

@@ -2,6 +2,9 @@ import * as vscode from "vscode";
 import * as fs from 'fs/promises'; // Use fs.promises for async/await
 import * as path from 'path';
 import { isEmpty } from "../utils/stringUtils";
+import { Logger } from "../utils/Logger";
+
+const logger = Logger.getLogger("CreateProjectCommand");
 
 async function askName(prompt: string, title: string): Promise<string | undefined> {
   const result = await vscode.window.showInputBox({
@@ -56,16 +59,16 @@ async function copyAndTransformFilesPlainNode(
 
         // 6. Write the modified content to the target file.
         await fs.writeFile(targetPath, content, 'utf8');
-        console.log(`Copied and transformed: ${targetPath}`);
+        logger.debug(`Copied and transformed: ${targetPath}`);
       }
     }
     // It's generally better to log success at the top level call,
     // but a per-folder log can be useful too.
     // console.log(`Successfully processed contents from ${sourceFolder} to ${targetFolder}`);
   } catch (error) {
-    console.error(
-      `Error processing from ${sourceFolder} to ${targetFolder}:`,
-      error
+    logger.error(
+      error,
+      `Error processing from ${sourceFolder} to ${targetFolder}:`
     );
     throw error; // Re-throw the error
   }
@@ -79,7 +82,7 @@ async function checkFolderExists(folderPath: string): Promise<boolean> {
     if (error.code === 'ENOENT') {
       return false; // Folder does not exist
     } else {
-      console.error('An unexpected error occurred:', error);
+      logger.error(error, 'An unexpected error occurred:');
       throw error; // Re-throw other errors
     }
   }

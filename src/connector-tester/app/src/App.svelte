@@ -351,7 +351,8 @@
     }
   }
 
-  let canExecute = $derived(!!selectedAction && bodyValid && !loading);
+  let hasValidTarget = $derived(target.type === 'local' || !!target.connectorId);
+  let canExecute = $derived(!!selectedAction && bodyValid && !loading && hasValidTarget);
 </script>
 
 <svelte:window onkeydown={handleKeydown} onmousemove={onMouseMove} onmouseup={stopDrag} />

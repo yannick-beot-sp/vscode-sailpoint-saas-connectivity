@@ -3,6 +3,7 @@ import { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Connector, CreateConnectorRequest, CreateConnectorResponse, CreateCustomizerRequest, CreateCustomizerResponse, Customizer, GetInstancesResponse, Instance, InvokeCommandRequest, LinkRequest, LinkResponse, LogEvents, LogMessage, LogRequest, UnlinkRequest, UnlinkResponse, UpdateConnectorRequest, UpdateConnectorResponse, UpdateCustomizerRequest, UpdateCustomizerResponse, UploadConnectorResponse, UploadCustomizerResponse, } from '../models/API';
 import { compareByName, compareCaseInsensitive } from '../utils/compare';
 import { basename } from 'path';
+import { Logger } from '../utils/Logger';
 
 
 const sourceCache = new Map<string, Instance[]>()
@@ -15,6 +16,8 @@ export function clearCache() {
 }
 
 export class SaaSConnectivityClient {
+
+    private readonly logger = Logger.getLogger("SaaSConnectivityClient");
 
     constructor(private readonly tenantId: string, private readonly axios: AxiosInstance) { }
 
@@ -76,7 +79,7 @@ export class SaaSConnectivityClient {
     }
 
     public async uploadConnector(id: string, filePath: string): Promise<UploadConnectorResponse> {
-        const fileBuffer = await fs.readFileSync(filePath);
+        const fileBuffer = await fs.promises.readFile(filePath);
 
         // Create a File object
         const file = new File([fileBuffer], basename(filePath), {
@@ -92,10 +95,10 @@ export class SaaSConnectivityClient {
     */
     public async getInstances(): Promise<GetInstancesResponse[]> {
         if (sourceCache.has(this.tenantId)) {
-            console.log("sourceCache hit!", this.tenantId);
+            this.logger.trace("sourceCache hit!", this.tenantId);
             return sourceCache.get(this.tenantId)!
         } else {
-            console.log("sourceCache missed!", this.tenantId);
+            this.logger.trace("sourceCache missed!", this.tenantId);
             const response = await this.axios.get<GetInstancesResponse[]>("connector-instances")
             const data = response.data.sort(compareByName)
             sourceCache.set(this.tenantId, data)
@@ -147,11 +150,11 @@ export class SaaSConnectivityClient {
 
     public async getCustomizers(): Promise<Customizer[]> {
         if (customizerCache.has(this.tenantId)) {
-            console.log("customizerCache hit!", this.tenantId);
+            this.logger.trace("customizerCache hit!", this.tenantId);
 
             return customizerCache.get(this.tenantId)!
         } else {
-            console.log("customizerCache missed!", this.tenantId);
+            this.logger.trace("customizerCache missed!", this.tenantId);
             const response = await this.axios.get<Customizer[]>("connector-customizers")
             const data = response.data.sort(compareByName)
             customizerCache.set(this.tenantId, data)

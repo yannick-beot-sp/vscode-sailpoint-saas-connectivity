@@ -9,6 +9,7 @@ import { ISCExtensionClient } from '../iscextension/iscextension-client';
 import { getWorkspaceFolder } from '../utils/vsCodeHelpers';
 import { parseEnvFile } from '../utils/envUtils';
 import { Config } from '../utils/Config';
+import { Logger } from '../utils/Logger';
 
 interface CallHistoryItem {
     id: string;
@@ -73,6 +74,7 @@ export class ConnectorTesterPanel {
     private readonly _panel: vscode.WebviewPanel;
     private _disposables: vscode.Disposable[] = [];
     private readonly _clientFactory: SaaSConnectivityClientFactory;
+    private readonly logger = Logger.getLogger("ConnectorTesterPanel");
 
     public static createOrShow(
         context: vscode.ExtensionContext,
@@ -192,19 +194,18 @@ export class ConnectorTesterPanel {
 
     private _getConnectorSpec(): any {
         const workspaceFolder = getWorkspaceFolder()
-        console.log({ workspaceFolder });
+        this.logger.debug("workspaceFolder", workspaceFolder);
         if (workspaceFolder === undefined) {
-            console.error("No workspace found. Try to open the folder of your connector before testing.")
+            this.logger.error("No workspace found. Try to open the folder of your connector before testing.")
             return undefined;
         }
         const connectorSpecPath = path.join(workspaceFolder, "connector-spec.json")
-        console.log({ connectorSpecPath });
+        this.logger.debug("connectorSpecPath", connectorSpecPath);
         let connectorSpecContent: string
         try {
             connectorSpecContent = fs.readFileSync(connectorSpecPath, { encoding: "utf8" })
         } catch (error) {
-            console.error(error);
-            console.error("Could not read `connector-spec.json`. Try to open the folder of your connector before testing.")
+            this.logger.error(error, "Could not read `connector-spec.json`. Try to open the folder of your connector before testing.")
             return undefined;
         }
         const connectorSpecJSON = JSON.parse(connectorSpecContent)
@@ -329,7 +330,7 @@ export class ConnectorTesterPanel {
     private async _handleGetEnvFiles(requestId: string) {
         try {
             const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-            console.log({ workspaceFolder });
+            this.logger.debug("workspaceFolder", workspaceFolder);
             if (!workspaceFolder) {
                 this._reply(commands.GET_ENV_FILES, requestId, []);
                 return;

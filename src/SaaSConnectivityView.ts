@@ -4,6 +4,7 @@ import { ISCExtensionClient } from './iscextension/iscextension-client';
 import { convertToBaseTreeItem } from './iscextension/convertToBaseTreeItem';
 import { BaseTreeItem, TenantFolderTreeItem, TenantTreeItem } from './models/TreeModel';
 import { clearCache } from './services/SaaSConnectivityClient';
+import { Logger } from './utils/Logger';
 
 
 export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeItem>, vscode.TreeDragAndDropController<BaseTreeItem> {
@@ -13,6 +14,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
     dropMimeTypes: readonly string[] = [constants.DROP_MIME_TYPE];
     dragMimeTypes: readonly string[] = ["text/uri-list"];
 
+    private readonly logger = Logger.getLogger("SaaSConnectivityView");
     private readonly iscExtensionClient: ISCExtensionClient
 
     ////////////////////////////////
@@ -49,16 +51,16 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
         } else {
             const roots = this.iscExtensionClient.getRoots()
             const results = roots.map(x => convertToBaseTreeItem(x, this.iscExtensionClient))
-            console.log("< getChildren", results);
+            this.logger.trace("< getChildren", results);
             return results;
         }
 
     }
 
     public getTreeItem(item: BaseTreeItem): vscode.TreeItem {
-        console.log("> getTreeItem", item);
+        this.logger.trace("> getTreeItem", item);
         item.updateIcon(this.context);
-        console.log("after update", item);
+        this.logger.trace("after update", item);
 
         if (item.contextValue !== item.computedContextValue) {
             const newItem = {
@@ -113,7 +115,7 @@ export class SaaSConnectivityView implements vscode.TreeDataProvider<BaseTreeIte
 
 
     refresh(node?: BaseTreeItem): void {
-        console.log('> SaaSConnectivityView.refresh');
+        this.logger.trace('> refresh');
         clearCache()
         if (node) {
             this._onDidChangeTreeData.fire([node]);

@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { Logger } from "./Logger";
 
 export async function confirm(prompt: string): Promise<boolean> {
 	const answer = await vscode.window.showWarningMessage(
@@ -8,7 +9,7 @@ export async function confirm(prompt: string): Promise<boolean> {
 	);
 	const value = (answer === "Yes")
 
-	console.log(`< confirm: ${value}`);
+	Logger.debug(`< confirm: ${value}`);
 	return value;
 }
 

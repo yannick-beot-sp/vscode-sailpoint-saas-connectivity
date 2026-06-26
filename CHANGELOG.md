@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## Unreleased
 
+### Added
+
+- Use of OutputChannel "SaaS Connectivity"
+
 ### Fixed
 
 - If no connector spec is present, the actions will be all standard actions by default
