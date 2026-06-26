@@ -1,66 +1,50 @@
-import * as cp from 'child_process';
 import * as vscode from "vscode";
 import { Config } from "../utils/Config";
 
-interface Process {
-    process: cp.ChildProcess;
-    cmd: string;
-}
 /**
- * Used to run npm command, especially to create a package
+ * Used to run npm command, especially to create a package.
+ *
+ * Runs through vscode.tasks/ShellExecution (the same mechanism backing
+ * VS Code's built-in "NPM Scripts" view) rather than child_process.exec,
+ * so the npm binary and each argument are passed individually with strong
+ * shell quoting instead of being concatenated into one shell command line.
+ * This avoids shell injection even though `npm.bin` and the build script
+ * name are user-configurable settings.
  */
 export class NpmCommandRunner {
-    private outputChannel: vscode.OutputChannel;
-    private runningProcesses: Map<number, Process> = new Map();
 
-    constructor(private readonly context: vscode.ExtensionContext) {
-        this.outputChannel = vscode.window.createOutputChannel('SaaS Connectivity/npm');
-        context.subscriptions.push(this.outputChannel);
-    }
-
+    constructor(private readonly context: vscode.ExtensionContext) { }
 
     public async run(cwd: string, args: string[]): Promise<boolean> {
-        this.outputChannel.clear();
-        const cmd = Config.getNpmBin() + ' ' + args.join(' ');
-        const p = cp.exec(cmd, { cwd: cwd, env: process.env });
-        if (!p.pid) {
-            return false
-        }
-        this.runningProcesses.set(p.pid, { process: p, cmd: cmd });
+        const bin = Config.getNpmBin();
+        const quotedArgs: vscode.ShellQuotedString[] = args.map(arg => ({
+            value: arg,
+            quoting: vscode.ShellQuoting.Strong,
+        }));
 
-        return new Promise((resolve, reject) => {
-            if (!p.pid) {
-                resolve(false);
-                return;
-            }
+        const execution = new vscode.ShellExecution(bin, quotedArgs, { cwd });
+        const task = new vscode.Task(
+            { type: "sailpoint-saas-connectivity-npm" },
+            vscode.TaskScope.Workspace,
+            "SaaS Connectivity",
+            "SaaS Connectivity",
+            execution
+        );
+        task.presentationOptions = {
+            reveal: vscode.TaskRevealKind.Always,
+            panel: vscode.TaskPanelKind.Dedicated,
+            clear: true,
+        };
 
-            this.runningProcesses.set(p.pid, { process: p, cmd: cmd });
-
-            p.stderr?.on('data', (data: string) => {
-                this.outputChannel.append(data);
-            });
-
-            p.stdout?.on('data', (data: string) => {
-                this.outputChannel.append(data);
-            });
-
-            p.on('exit', (code: number | null, signal: string | null) => {
-                this.runningProcesses.delete(p.pid!);
-
-                if (signal === 'SIGTERM') {
-                    this.outputChannel.appendLine('Successfully killed process');
-                    this.outputChannel.appendLine('-----------------------');
-                    this.outputChannel.appendLine('');
-                    resolve(false); // Indicate incomplete build
-                } else {
-                    this.outputChannel.appendLine('-----------------------');
-                    this.outputChannel.appendLine('');
-                    resolve(code === 0); // Indicate successful execution
+        return new Promise<boolean>((resolve) => {
+            const disposable = vscode.tasks.onDidEndTaskProcess(e => {
+                if (e.execution.task === task) {
+                    disposable.dispose();
+                    resolve(e.exitCode === 0);
                 }
-
             });
-            this.outputChannel.show();
+            this.context.subscriptions.push(disposable);
+            vscode.tasks.executeTask(task);
         });
-
     }
 }

@@ -33,6 +33,11 @@
   "preview": true,
   "activationEvents": [],
   "main": "./dist/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    }
+  },
   "contributes": {
     "viewsContainers": {
       "activitybar": [
